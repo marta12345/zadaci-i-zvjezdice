@@ -482,7 +482,10 @@
           if (lc.includes('judo')) {
             span.style.color = '#e67e22';      // narančasta
             span.style.fontWeight = 'bold';
-          } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću') || lc.includes('petica iz testa')) {
+          } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću')) {
+            span.style.color = '#8e44ad';      // ljubičasta
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('petica iz testa')) {
             span.style.color = '#8b5a2b';      // smeđa
             span.style.fontWeight = 'bold';
           }
