@@ -30,7 +30,7 @@
 
   .board {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
     gap: 24px;
     max-width: 1100px;
     margin: 0 auto;
@@ -186,6 +186,24 @@
   .task-del:active { transform: scale(0.9); }
 
   .empty { text-align: center; color: #b2bec3; padding: 14px; font-style: italic; }
+
+  /* Dorada za mobitele i manje ekrane */
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    header { margin-bottom: 18px; }
+    header h1 { font-size: 1.7rem; }
+    header p { font-size: 0.9rem; }
+    .board { gap: 16px; }
+    .child-card { padding: 16px; border-radius: 18px; }
+    .child-name { font-size: 1.3rem; }
+    .stars-row { flex-wrap: wrap; gap: 6px; }
+    /* Veće tipke da se lakše pogode prstom */
+    .star-btns button { width: 40px; height: 40px; font-size: 1.25rem; }
+    .add-task button { min-width: 46px; }
+    .task-check { width: 26px; height: 26px; }
+    .task-del { width: 38px; height: 38px; }
+    .task-edit-btn { font-size: 1.2rem; padding: 4px; }
+  }
 </style>
 </head>
 <body>
