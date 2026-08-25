@@ -28,6 +28,19 @@
 
   header p { color: #636e72; margin-top: 6px; font-size: 1rem; }
 
+  .clock {
+    display: inline-block;
+    margin-top: 10px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 8px 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    font-size: 1.05rem;
+    color: #2d3436;
+  }
+  .clock .day { font-weight: bold; color: #6c5ce7; text-transform: capitalize; }
+  .clock .time { font-weight: bold; color: #00b894; }
+
   .board {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -209,6 +222,7 @@
 <body>
   <header>
     <h1>⭐ Zadaci i Zvjezdice ⭐</h1>
+    <div id="clock" class="clock"></div>
     <p>Ispuni svoja zaduženja i skupljaj nagradne zvjezdice!</p>
   </header>
 
@@ -512,6 +526,24 @@
       board.appendChild(card);
     });
   }
+
+  // Sat i datum uživo (dan u tjednu, datum, sat:minuta:sekunda)
+  const DANI = ['nedjelja', 'ponedjeljak', 'utorak', 'srijeda', 'četvrtak', 'petak', 'subota'];
+  const MJESECI = ['siječnja','veljače','ožujka','travnja','svibnja','lipnja',
+                   'srpnja','kolovoza','rujna','listopada','studenoga','prosinca'];
+
+  function updateClock() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    const dan = DANI[d.getDay()];
+    const datum = d.getDate() + '. ' + MJESECI[d.getMonth()] + ' ' + d.getFullYear() + '.';
+    const vrijeme = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    document.getElementById('clock').innerHTML =
+      '<span class="day">' + dan + '</span>, ' + datum +
+      ' &nbsp;•&nbsp; <span class="time">' + vrijeme + '</span>';
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
 
   render();
 </script>
