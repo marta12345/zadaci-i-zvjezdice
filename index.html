@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zadaci i Zvjezdice ⭐</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2d3436;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  header h1 {
+    font-size: 2.4rem;
+    color: #6c5ce7;
+    text-shadow: 2px 2px 0 #fff;
+  }
+
+  header p { color: #636e72; margin-top: 6px; font-size: 1rem; }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .child-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    border-top: 10px solid var(--accent);
+  }
+
+  .child-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .child-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    background: transparent;
+    color: #2d3436;
+    width: 100%;
+    font-family: inherit;
+  }
+  .child-name:focus { outline: 2px dashed var(--accent); border-radius: 6px; }
+
+  .stars-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff9e6;
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin: 12px 0 16px;
+  }
+  .stars-display { font-size: 1.3rem; }
+  .stars-count { font-weight: bold; color: #f39c12; }
+  .star-btns button {
+    border: none;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 6px;
+    color: #fff;
+    transition: transform 0.1s;
+  }
+  .star-btns button:active { transform: scale(0.9); }
+  .btn-plus { background: #00b894; }
+  .btn-minus { background: #e17055; }
+
+  .add-task {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .add-task input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #dfe6e9;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .add-task input:focus { outline: none; border-color: var(--accent); }
+  .add-task button {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  ul.tasks { list-style: none; flex: 1; }
+  ul.tasks li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: #f5f6fa;
+  }
+  ul.tasks li.done { background: #d5f5e3; }
+  ul.tasks li.done .task-text { text-decoration: line-through; color: #7f8c8d; }
+  .task-check {
+    width: 24px; height: 24px;
+    cursor: pointer;
+    accent-color: #00b894;
+    flex-shrink: 0;
+  }
+  .task-text { flex: 1; font-size: 1rem; word-break: break-word; }
+  .task-del {
+    border: none;
+    background: transparent;
+    color: #b2bec3;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .task-del:hover { color: #e17055; }
+
+  .empty { text-align: center; color: #b2bec3; padding: 14px; font-style: italic; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 30px;
+    color: #636e72;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>⭐ Zadaci i Zvjezdice ⭐</h1>
+    <p>Ispuni svoja zaduženja i skupljaj nagradne zvjezdice!</p>
+  </header>
+
+  <div class="board" id="board"></div>
+
+  <p class="footer-note">Podaci se automatski spremaju na ovom uređaju. 💾</p>
+
+<script>
+  const STORAGE_KEY = 'zadaci_zvjezdice_v1';
+
+  // Zadane vrijednosti za troje djece
+  const defaultData = [
+    { name: 'Dijete 1', emoji: '🦈', color: '#0984e3', stars: 0, tasks: [] },
+    { name: 'Dijete 2', emoji: '🐰', color: '#e84393', stars: 0, tasks: [] },
+    { name: 'Dijete 3', emoji: '🐻', color: '#00b894', stars: 0, tasks: [] }
+  ];
+
+  let children = load();
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // Uvijek primijeni najnovije boje i životinje iz koda,
+        // a zadrži spremljena imena, zvjezdice i zadatke.
+        return defaultData.map((def, i) => {
+          const s = saved[i] || {};
+          return {
+            name: s.name || def.name,
+            emoji: def.emoji,   // uvijek nova životinja
+            color: def.color,   // uvijek nova boja
+            stars: typeof s.stars === 'number' ? s.stars : 0,
+            tasks: Array.isArray(s.tasks) ? s.tasks : []
+          };
+        });
+      }
+    } catch (e) { /* ignore */ }
+    return JSON.parse(JSON.stringify(defaultData));
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
+  }
+
+  function render() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
+    children.forEach((child, ci) => {
+      const card = document.createElement('div');
+      card.className = 'child-card';
+      card.style.setProperty('--accent', child.color);
+
+      // Header s imenom
+      const header = document.createElement('div');
+      header.className = 'child-header';
+      header.innerHTML = `<div class="avatar">${child.emoji}</div>`;
+      const nameInput = document.createElement('input');
+      nameInput.className = 'child-name';
+      nameInput.value = child.name;
+      nameInput.title = 'Klikni za promjenu imena';
+      nameInput.addEventListener('change', () => {
+        child.name = nameInput.value.trim() || ('Dijete ' + (ci + 1));
+        save();
+      });
+      header.appendChild(nameInput);
+      card.appendChild(header);
+
+      // Zvjezdice
+      const starsRow = document.createElement('div');
+      starsRow.className = 'stars-row';
+      const starIcons = child.stars > 0 ? '⭐'.repeat(Math.min(child.stars, 10)) : '☆';
+      starsRow.innerHTML = `
+        <span class="stars-display">${starIcons}</span>
+        <span><span class="stars-count">${child.stars}</span> zvjezdica</span>
+        <span class="star-btns">
+          <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
+          <button class="btn-plus" title="Dodaj zvjezdicu">+</button>
+        </span>`;
+      starsRow.querySelector('.btn-plus').addEventListener('click', () => {
+        child.stars++;
+        save(); render();
+      });
+      starsRow.querySelector('.btn-minus').addEventListener('click', () => {
+        if (child.stars > 0) child.stars--;
+        save(); render();
+      });
+      card.appendChild(starsRow);
+
+      // Unos novog zadatka
+      const addRow = document.createElement('div');
+      addRow.className = 'add-task';
+      const taskInput = document.createElement('input');
+      taskInput.placeholder = 'Novo zaduženje...';
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+';
+      addBtn.title = 'Dodaj zaduženje';
+      function addTask() {
+        const text = taskInput.value.trim();
+        if (!text) return;
+        child.tasks.push({ text, done: false });
+        taskInput.value = '';
+        save(); render();
+      }
+      addBtn.addEventListener('click', addTask);
+      taskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+      addRow.appendChild(taskInput);
+      addRow.appendChild(addBtn);
+      card.appendChild(addRow);
+
+      // Lista zadataka
+      const ul = document.createElement('ul');
+      ul.className = 'tasks';
+      if (child.tasks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Još nema zaduženja 🌱';
+        ul.appendChild(empty);
+      }
+      child.tasks.forEach((task, ti) => {
+        const li = document.createElement('li');
+        if (task.done) li.classList.add('done');
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.className = 'task-check';
+        check.checked = task.done;
+        check.addEventListener('change', () => {
+          task.done = check.checked;
+          // Nagrada: kad se zadatak označi kao završen, dodaj zvjezdicu
+          if (task.done) child.stars++;
+          else if (child.stars > 0) child.stars--;
+          save(); render();
+        });
+
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task.text;
+
+        const del = document.createElement('button');
+        del.className = 'task-del';
+        del.textContent = '🗑';
+        del.title = 'Obriši zaduženje';
+        del.addEventListener('click', () => {
+          child.tasks.splice(ti, 1);
+          save(); render();
+        });
+
+        li.appendChild(check);
+        li.appendChild(span);
+        li.appendChild(del);
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+
+      board.appendChild(card);
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
