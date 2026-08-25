@@ -141,6 +141,23 @@
     flex-shrink: 0;
   }
   .task-text { flex: 1; font-size: 1rem; word-break: break-word; }
+  .task-edit {
+    flex: 1;
+    font-size: 1rem;
+    font-family: inherit;
+    padding: 4px 8px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    outline: none;
+  }
+  .task-edit-btn {
+    border: none;
+    background: transparent;
+    color: #b2bec3;
+    font-size: 1.05rem;
+    cursor: pointer;
+  }
+  .task-edit-btn:hover { color: var(--accent); }
   .task-del {
     border: none;
     background: transparent;
@@ -303,6 +320,43 @@
         span.className = 'task-text';
         span.textContent = task.text;
 
+        li.appendChild(check);
+        li.appendChild(span);
+
+        // Uređivanje teksta - dostupno samo dok zadatak NIJE obavljen
+        if (!task.done) {
+          span.title = 'Klikni olovku za uređivanje';
+
+          function startEdit() {
+            const edit = document.createElement('input');
+            edit.type = 'text';
+            edit.className = 'task-edit';
+            edit.value = task.text;
+            span.replaceWith(edit);
+            editBtn.style.display = 'none';
+            edit.focus();
+            edit.select();
+
+            function finish(saveChange) {
+              const val = edit.value.trim();
+              if (saveChange && val) task.text = val;
+              save(); render();
+            }
+            edit.addEventListener('keydown', e => {
+              if (e.key === 'Enter') finish(true);
+              else if (e.key === 'Escape') finish(false);
+            });
+            edit.addEventListener('blur', () => finish(true));
+          }
+
+          var editBtn = document.createElement('button');
+          editBtn.className = 'task-edit-btn';
+          editBtn.textContent = '✏️';
+          editBtn.title = 'Uredi zaduženje';
+          editBtn.addEventListener('click', startEdit);
+          li.appendChild(editBtn);
+        }
+
         const del = document.createElement('button');
         del.className = 'task-del';
         del.textContent = '🗑';
@@ -312,8 +366,6 @@
           save(); render();
         });
 
-        li.appendChild(check);
-        li.appendChild(span);
         li.appendChild(del);
         ul.appendChild(li);
       });
