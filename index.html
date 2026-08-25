@@ -476,6 +476,18 @@
         span.className = 'task-text';
         span.textContent = task.text;
 
+        // Bojanje teksta prema vrsti zadatka (samo dok nije prekrižen)
+        if (!task.done) {
+          const lc = task.text.trim().toLowerCase();
+          if (lc.includes('judo')) {
+            span.style.color = '#e67e22';      // narančasta
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću') || lc.includes('petica iz testa')) {
+            span.style.color = '#8b5a2b';      // smeđa
+            span.style.fontWeight = 'bold';
+          }
+        }
+
         li.appendChild(check);
         li.appendChild(span);
 
