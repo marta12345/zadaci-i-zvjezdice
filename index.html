@@ -282,9 +282,8 @@
       // Obične zvjezdice
       const starsRow = document.createElement('div');
       starsRow.className = 'stars-row';
-      const starIcons = child.stars > 0 ? '⭐'.repeat(Math.min(child.stars, 10)) : '☆';
       starsRow.innerHTML = `
-        <span class="stars-display">${starIcons}</span>
+        <span class="stars-display">⭐</span>
         <span><span class="stars-count">${child.stars}</span> zvjezdica</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
@@ -300,16 +299,15 @@
       });
       card.appendChild(starsRow);
 
-      // Velike zvijezde - posebna nagrada (npr. za peticu iz testa)
+      // Velike zvijezde - nagrada za peticu iz testa
       const bigRow = document.createElement('div');
       bigRow.className = 'stars-row big-stars-row';
-      const bigIcons = child.bigStars > 0 ? '🌟'.repeat(Math.min(child.bigStars, 10)) : '✩';
       bigRow.innerHTML = `
-        <span class="stars-display big">${bigIcons}</span>
-        <span><span class="stars-count big-count">${child.bigStars}</span> velikih ⭐</span>
+        <span class="stars-display big">🌟</span>
+        <span><span class="stars-count big-count">${child.bigStars}</span> za peticu iz testa</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni veliku zvijezdu">−</button>
-          <button class="btn-plus big-plus" title="Velika zvijezda (npr. petica iz testa)">+</button>
+          <button class="btn-plus big-plus" title="Velika zvijezda za peticu iz testa">+</button>
         </span>`;
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
         child.bigStars++;
