@@ -84,6 +84,15 @@
   }
   .stars-display { font-size: 1.3rem; }
   .stars-count { font-weight: bold; color: #f39c12; }
+
+  .big-stars-row {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe08a 100%);
+    border: 2px solid #f5c542;
+    margin-top: -6px;
+  }
+  .stars-display.big { font-size: 1.45rem; }
+  .big-count { color: #e67e22; }
+  .btn-plus.big-plus { background: #f39c12; }
   .star-btns button {
     border: none;
     width: 34px; height: 34px;
@@ -192,9 +201,29 @@
 
   // Zadane vrijednosti za troje djece
   const defaultData = [
-    { name: 'Dijete 1', emoji: '🦈', color: '#0984e3', stars: 0, tasks: [] },
-    { name: 'Dijete 2', emoji: '🐰', color: '#e84393', stars: 0, tasks: [] },
-    { name: 'Dijete 3', emoji: '🐻', color: '#00b894', stars: 0, tasks: [] }
+    { name: 'Dijete 1', emoji: '🦈', color: '#0984e3', stars: 0, bigStars: 0, tasks: [] },
+    { name: 'Dijete 2', emoji: '🐰', color: '#e84393', stars: 0, bigStars: 0, tasks: [] },
+    { name: 'Dijete 3', emoji: '🐻', color: '#00b894', stars: 0, bigStars: 0, tasks: [] }
+  ];
+
+  // Prijedlozi zaduženja koji se automatski nude tijekom pisanja
+  const TASK_SUGGESTIONS = [
+    'Pospremiti sobu',
+    'Pospremiti krevet',
+    'Oprati zube',
+    'Napisati zadaću',
+    'Nahraniti ljubimca',
+    'Iznijeti smeće',
+    'Postaviti stol',
+    'Pospremiti igračke',
+    'Čitati 15 minuta',
+    'Zaliti cvijeće',
+    'Pomoći u kuhinji',
+    'Spremiti torbu za školu',
+    'Peglati/složiti robu',
+    'Naučiti za test',
+    'Vježbati klavir',
+    'Prošetati psa'
   ];
 
   let children = load();
@@ -213,6 +242,7 @@
             emoji: def.emoji,   // uvijek nova životinja
             color: def.color,   // uvijek nova boja
             stars: typeof s.stars === 'number' ? s.stars : 0,
+            bigStars: typeof s.bigStars === 'number' ? s.bigStars : 0,
             tasks: Array.isArray(s.tasks) ? s.tasks : []
           };
         });
@@ -249,7 +279,7 @@
       header.appendChild(nameInput);
       card.appendChild(header);
 
-      // Zvjezdice
+      // Obične zvjezdice
       const starsRow = document.createElement('div');
       starsRow.className = 'stars-row';
       const starIcons = child.stars > 0 ? '⭐'.repeat(Math.min(child.stars, 10)) : '☆';
@@ -270,11 +300,44 @@
       });
       card.appendChild(starsRow);
 
+      // Velike zvijezde - posebna nagrada (npr. za peticu iz testa)
+      const bigRow = document.createElement('div');
+      bigRow.className = 'stars-row big-stars-row';
+      const bigIcons = child.bigStars > 0 ? '🌟'.repeat(Math.min(child.bigStars, 10)) : '✩';
+      bigRow.innerHTML = `
+        <span class="stars-display big">${bigIcons}</span>
+        <span><span class="stars-count big-count">${child.bigStars}</span> velikih ⭐</span>
+        <span class="star-btns">
+          <button class="btn-minus" title="Ukloni veliku zvijezdu">−</button>
+          <button class="btn-plus big-plus" title="Velika zvijezda (npr. petica iz testa)">+</button>
+        </span>`;
+      bigRow.querySelector('.big-plus').addEventListener('click', () => {
+        child.bigStars++;
+        save(); render();
+      });
+      bigRow.querySelector('.btn-minus').addEventListener('click', () => {
+        if (child.bigStars > 0) child.bigStars--;
+        save(); render();
+      });
+      card.appendChild(bigRow);
+
       // Unos novog zadatka
       const addRow = document.createElement('div');
       addRow.className = 'add-task';
       const taskInput = document.createElement('input');
       taskInput.placeholder = 'Novo zaduženje...';
+      // Automatski prijedlozi teksta tijekom pisanja
+      const listId = 'suggestions-' + ci;
+      taskInput.setAttribute('list', listId);
+      taskInput.setAttribute('autocomplete', 'off');
+      const datalist = document.createElement('datalist');
+      datalist.id = listId;
+      TASK_SUGGESTIONS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        datalist.appendChild(opt);
+      });
+      addRow.appendChild(datalist);
       const addBtn = document.createElement('button');
       addBtn.textContent = '+';
       addBtn.title = 'Dodaj zaduženje';
