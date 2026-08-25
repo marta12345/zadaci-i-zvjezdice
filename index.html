@@ -383,9 +383,15 @@
         check.checked = task.done;
         check.addEventListener('change', () => {
           task.done = check.checked;
-          // Nagrada: kad se zadatak označi kao završen, dodaj zvjezdicu
-          if (task.done) child.stars++;
-          else if (child.stars > 0) child.stars--;
+          // Zadatak "Petica iz testa" nosi VELIKU zvijezdu, ostali obicnu.
+          const jePetica = task.text.trim().toLowerCase() === 'petica iz testa';
+          if (task.done) {
+            if (jePetica) child.bigStars++;
+            else child.stars++;
+          } else {
+            if (jePetica) { if (child.bigStars > 0) child.bigStars--; }
+            else if (child.stars > 0) child.stars--;
+          }
           save(); render();
         });
 
