@@ -208,6 +208,8 @@
 
   // Prijedlozi zaduženja koji se automatski nude tijekom pisanja
   const TASK_SUGGESTIONS = [
+    'Petica iz testa',
+    'Naučiti za test',
     'Pospremiti sobu',
     'Pospremiti krevet',
     'Oprati zube',
@@ -221,7 +223,6 @@
     'Pomoći u kuhinji',
     'Spremiti torbu za školu',
     'Peglati/složiti robu',
-    'Naučiti za test',
     'Vježbati klavir',
     'Prošetati psa'
   ];
@@ -251,7 +252,18 @@
     return JSON.parse(JSON.stringify(defaultData));
   }
 
+  // Pravilo: 3 male zvjezdice = 1 velika zvijezda.
+  // Kad se skupi 3 obične, pretvore se u jednu veliku.
+  function convertStars(child) {
+    if (child.stars >= 3) {
+      const converted = Math.floor(child.stars / 3);
+      child.bigStars += converted;
+      child.stars = child.stars % 3;
+    }
+  }
+
   function save() {
+    children.forEach(convertStars);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
   }
 
@@ -284,10 +296,10 @@
       starsRow.className = 'stars-row';
       starsRow.innerHTML = `
         <span class="stars-display">⭐</span>
-        <span><span class="stars-count">${child.stars}</span> zvjezdica</span>
+        <span><span class="stars-count">${child.stars}</span> / 3 zvjezdice</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
-          <button class="btn-plus" title="Dodaj zvjezdicu">+</button>
+          <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
         </span>`;
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
         child.stars++;
