@@ -245,7 +245,48 @@
     'Prošetati psa'
   ];
 
+  // Automatski (ponavljajući) zadaci po danu u tjednu.
+  // Dan: 0 = nedjelja, 1 = ponedjeljak, 2 = utorak, ... 6 = subota.
+  // Ovi se zadaci SAMI dodaju svakom djetetu na taj dan u tjednu.
+  const WEEKLY_TASKS = {
+    1: ['Napiši zadaću', 'Judo trening']   // svaki PONEDJELJAK
+  };
+
   let children = load();
+
+  // Automatsko dodavanje ponavljajućih zadataka za današnji dan.
+  applyWeeklyTasks();
+
+  // Vraća datum kao "GGGG-MM-DD" po lokalnom vremenu
+  function todayKey() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function applyWeeklyTasks() {
+    const today = todayKey();
+    const weekday = new Date().getDay();          // 0-6
+    const planned = WEEKLY_TASKS[weekday] || [];
+    if (planned.length === 0) return;
+
+    // Pamtimo za koji smo datum već dodali automatske zadatke,
+    // da se ne dupliciraju pri svakom otvaranju istog dana.
+    const lastApplied = localStorage.getItem('weekly_applied_date');
+    if (lastApplied === today) return;
+
+    children.forEach(child => {
+      planned.forEach(text => {
+        // Dodaj samo ako taj zadatak već ne postoji među neobavljenima
+        const postoji = child.tasks.some(t => t.text === text && !t.done);
+        if (!postoji) child.tasks.push({ text, done: false, auto: true });
+      });
+    });
+
+    localStorage.setItem('weekly_applied_date', today);
+    save();
+  }
 
   function load() {
     try {
@@ -314,7 +355,7 @@
       starsRow.className = 'stars-row';
       starsRow.innerHTML = `
         <span class="stars-display">⭐</span>
-        <span><span class="stars-count">${child.stars}</span> / 3 zvjezdice</span>
+        <span><span class="stars-count">${child.stars}</span> zvjezdice</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
           <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
