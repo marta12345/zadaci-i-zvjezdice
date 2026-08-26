@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zadaci i Zvjezdice ⭐</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37' fill='%23F6C744' stroke='%23e8b93a' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='f' cx='42%25' cy='34%25' r='72%25'%3E%3Cstop offset='0%25' stop-color='%23fff59d'/%3E%3Cstop offset='55%25' stop-color='%23F6E04A'/%3E%3Cstop offset='100%25' stop-color='%23e0b400'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37' fill='url(%23f)' stroke='%23fff8c0' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cellipse cx='40' cy='46' rx='5' ry='6.5' fill='%231a1a1a'/%3E%3Cellipse cx='60' cy='46' rx='5' ry='6.5' fill='%231a1a1a'/%3E%3Cpath d='M 34 58 Q 50 76 66 58 Q 50 66 34 58 Z' fill='%231a1a1a'/%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -762,79 +762,90 @@
     '#EF6E6E', '#FFD86B', '#C3F09A', '#A9E8DC'
   ];
 
-  // Vraća SVG jedne maštovite zvjezdice: neke namiguju, neke mašu, neke plaze jezik.
-  // Mini zvjezdice su bebe - imaju dudu i pelenu.
+  // Posvijetli/zatamni hex boju za 3D gradijent
+  function shade(hex, percent) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    r = Math.max(0, Math.min(255, Math.round(r + 255 * percent)));
+    g = Math.max(0, Math.min(255, Math.round(g + 255 * percent)));
+    b = Math.max(0, Math.min(255, Math.round(b + 255 * percent)));
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  // Sjajna 3D zvjezdica s velikim veselim licem (stil kao na referentnoj slici).
+  // Male = duda; velike = namiguju / mašu / plaze jezik. Razne boje.
   function fancyStarSVG(color, seed, vrsta) {
     const beba = vrsta === 'mini';
     const tip = seed % 4; // 0=osmijeh, 1=namiguje, 2=maše, 3=plazi jezik
-    const rosy = seed % 2 === 0;
+    const gid = 'sg' + vrsta + seed;             // jedinstveni id gradijenta
+    const light = shade(color, 0.28);
+    const dark = shade(color, -0.22);
 
-    // Oči
+    // ---- OČI (velike, sjajne) ----
     let leftEye, rightEye;
-    if (tip === 1) {
-      // namiguje - lijevo oko zatvoreno (crtica)
-      leftEye = '<path d="M 35 48 Q 40 51 45 48" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
-      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+    if (!beba && tip === 1) {
+      // namiguje - lijevo oko zatvoreno
+      leftEye = '<path d="M 33 46 Q 39 51 45 46" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      rightEye = '<ellipse cx="60" cy="46" rx="6" ry="7.5" fill="#1a1a1a"/><circle cx="62.5" cy="43" r="2" fill="#fff"/>';
     } else {
-      leftEye = '<circle cx="40" cy="48" r="5" fill="#2d3436"/><circle cx="42" cy="46" r="1.6" fill="#fff"/>';
-      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+      leftEye = '<ellipse cx="40" cy="46" rx="6" ry="7.5" fill="#1a1a1a"/><circle cx="42.5" cy="43" r="2" fill="#fff"/>';
+      rightEye = '<ellipse cx="60" cy="46" rx="6" ry="7.5" fill="#1a1a1a"/><circle cx="62.5" cy="43" r="2" fill="#fff"/>';
     }
 
-    // Usta (ili duda ako je beba)
+    // ---- USTA / DUDA ----
     let mouth = '';
     if (beba && tip !== 3) {
-      // Beba: mali osmijeh + prava duda kao emoji 🍼 (čisto i prepoznatljivo)
-      // DUDA kao na slici: veliki okrugli štitnik + prsten (ručkica) koji viri prema dolje.
-      // Naizmjence zelena i roza. BEZ emojija (emoji u SVG-u ruši GitHub Pages build).
+      // Beba: veliki osmijeh + duda (naizmjence roza/zelena)
       const rozaDuda = seed % 2 === 0;
       const dudaFill = rozaDuda ? '#fd79a8' : '#55efc4';
       const dudaStroke = rozaDuda ? '#e84393' : '#00b894';
       mouth = `
+        <path d="M 40 60 Q 50 66 60 60" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
         <g>
-          <ellipse cx="50" cy="74" rx="6" ry="7" fill="none" stroke="${dudaStroke}" stroke-width="3"/>
-          <circle cx="50" cy="63" r="10" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="2"/>
-          <circle cx="46" cy="61" r="1.7" fill="${dudaStroke}"/>
-          <circle cx="54" cy="61" r="1.7" fill="${dudaStroke}"/>
-          <circle cx="50" cy="66" r="1.7" fill="${dudaStroke}"/>
+          <ellipse cx="50" cy="76" rx="5" ry="6" fill="none" stroke="${dudaStroke}" stroke-width="2.6"/>
+          <circle cx="50" cy="68" r="7.5" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="1.8"/>
+          <circle cx="50" cy="68" r="3" fill="#ffffff" stroke="${dudaStroke}" stroke-width="1.4"/>
         </g>`;
     } else if (tip === 3) {
-      // plazi jezik - otvorena usta + jezik
+      // plazi jezik
       mouth = `
-        <path d="M 36 60 Q 50 72 64 60 Z" fill="#2d3436"/>
-        <ellipse cx="50" cy="70" rx="7" ry="9" fill="#ff6b81"/>
-        <line x1="50" y1="63" x2="50" y2="74" stroke="#c0392b" stroke-width="1.5"/>`;
+        <path d="M 37 58 Q 50 70 63 58 Z" fill="#1a1a1a"/>
+        <ellipse cx="50" cy="69" rx="7" ry="8" fill="#ff6b81"/>`;
     } else {
-      // veseli osmijeh
-      mouth = '<path d="M 34 62 Q 50 74 66 62" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      // veliki otvoreni nasmijani rot (kao na slici) - crn s crvenim jezikom i bijelim zubima
+      mouth = `
+        <path d="M 34 58 Q 50 78 66 58 Q 50 66 34 58 Z" fill="#1a1a1a"/>
+        <path d="M 40 64 Q 50 74 60 64 Q 50 69 40 64 Z" fill="#ff5c72"/>
+        <path d="M 37 59 Q 50 63 63 59 L 61 62 Q 50 65 39 62 Z" fill="#ffffff"/>`;
     }
 
-    // Pelena uklonjena na zahtjev
-    let diaper = '';
-
-    // Ruke koje mašu (tip 2)
+    // ---- RUKE koje mašu (velike, tip 2) ----
     let arms = '';
     let extraClass = '';
-    if (tip === 2) {
+    if (!beba && tip === 2) {
       arms = `
-        <line class="wave-arm-l" x1="18" y1="55" x2="4" y2="42" stroke="${color}" stroke-width="6" stroke-linecap="round"/>
-        <line x1="82" y1="55" x2="96" y2="62" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
+        <line class="wave-arm-l" x1="20" y1="56" x2="5" y2="44" stroke="url(#${gid})" stroke-width="7" stroke-linecap="round"/>
+        <line x1="80" y1="56" x2="95" y2="64" stroke="url(#${gid})" stroke-width="7" stroke-linecap="round"/>`;
       extraClass = ' waving';
     }
 
-    const cheeks = rosy
-      ? '<circle cx="32" cy="58" r="4" fill="#ff7675" opacity="0.55"/><circle cx="68" cy="58" r="4" fill="#ff7675" opacity="0.55"/>'
-      : '';
-
     return `
     <svg class="fancy-star${extraClass}" viewBox="0 0 100 100" style="animation-delay:${(seed % 8) * 0.08}s">
+      <defs>
+        <radialGradient id="${gid}" cx="42%" cy="34%" r="72%">
+          <stop offset="0%" stop-color="${light}"/>
+          <stop offset="55%" stop-color="${color}"/>
+          <stop offset="100%" stop-color="${dark}"/>
+        </radialGradient>
+      </defs>
       ${arms}
       <polygon points="50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37"
-               fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+               fill="url(#${gid})" stroke="${light}" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37"
+               fill="none" stroke="#ffffff" stroke-width="1" stroke-linejoin="round" opacity="0.5"/>
       ${leftEye}
       ${rightEye}
-      ${cheeks}
       ${mouth}
-      ${diaper}
     </svg>`;
   }
 
