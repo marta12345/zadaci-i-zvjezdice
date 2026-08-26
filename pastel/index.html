@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zadaci i Zvjezdice ⭐</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='f' cx='42%25' cy='32%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23f7f16a'/%3E%3Cstop offset='70%25' stop-color='%23E6DC1E'/%3E%3Cstop offset='100%25' stop-color='%23b0a000'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='50,6 63,38 97,38 69,59 80,93 50,72 20,93 31,59 3,38 37,38' fill='url(%23f)' stroke='%23b0a000' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='40' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Cellipse cx='60' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Ccircle cx='42.5' cy='42' r='2' fill='%23fff'/%3E%3Ccircle cx='62.5' cy='42' r='2' fill='%23fff'/%3E%3Cpath d='M 33 57 Q 50 82 67 57 Q 50 68 33 57 Z' fill='%231a1a1a'/%3E%3Cpath d='M 42 67 Q 50 77 58 67 Q 50 72 42 67 Z' fill='%23ff5c72'/%3E%3Crect x='46' y='58' width='5' height='6' rx='1' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='f' cx='42%25' cy='32%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23fdf350'/%3E%3Cstop offset='55%25' stop-color='%23f2e400'/%3E%3Cstop offset='100%25' stop-color='%23c7b000'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='50,6 63,38 97,38 69,59 80,93 50,72 20,93 31,59 3,38 37,38' fill='url(%23f)' stroke='%23c7b000' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='40' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Cellipse cx='60' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Ccircle cx='42.5' cy='42' r='2' fill='%23fff'/%3E%3Ccircle cx='62.5' cy='42' r='2' fill='%23fff'/%3E%3Cpath d='M 33 57 Q 50 82 67 57 Q 50 68 33 57 Z' fill='%231a1a1a'/%3E%3Cpath d='M 42 67 Q 50 77 58 67 Q 50 72 42 67 Z' fill='%23ff5c72'/%3E%3Crect x='46' y='58' width='5' height='6' rx='1' fill='%23ffffff'/%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -778,10 +778,10 @@
     const beba = vrsta === 'mini';
     const tip = seed % 4; // 0=osmijeh, 1=namiguje, 2=maše, 3=plazi jezik
     const gid = 'sg' + vrsta + seed;             // jedinstveni id gradijenta
-    // Fiksne sjajne žute nijanse (bez obzira na prosljeđenu boju) - da izgleda kao slika
-    const light = '#fff89a';   // gotovo bijeli sjaj
-    const mid = '#f4e01c';     // živa žuta
-    const dark = '#c9a800';    // tamnija sjena
+    // Fiksne intenzivne žute nijanse (kao na fotki) - zasićena, jarka žuta
+    const light = '#fdf350';   // svijetlija jarka žuta
+    const mid = '#f2e400';     // intenzivna zasićena žuta
+    const dark = '#c7b000';    // tamnija zlatna sjena
 
     // ---- OČI (velike, sjajne) ----
     let leftEye, rightEye;
@@ -837,10 +837,9 @@
     return `
     <svg class="fancy-star${extraClass}" viewBox="-6 -6 112 112" style="animation-delay:${(seed % 8) * 0.08}s">
       <defs>
-        <radialGradient id="${gid}" cx="40%" cy="30%" r="78%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="30%" stop-color="${light}"/>
-          <stop offset="72%" stop-color="${mid}"/>
+        <radialGradient id="${gid}" cx="40%" cy="30%" r="80%">
+          <stop offset="0%" stop-color="${light}"/>
+          <stop offset="55%" stop-color="${mid}"/>
           <stop offset="100%" stop-color="${dark}"/>
         </radialGradient>
         <filter id="sh${gid}" x="-20%" y="-20%" width="140%" height="140%">
