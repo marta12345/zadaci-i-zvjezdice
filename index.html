@@ -256,6 +256,28 @@
   @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
   @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
 
+  /* Zvjezdica koja maše - njiše se malo jače */
+  .fancy-star.waving { animation: pop 0.4s ease both, wave 1.2s ease-in-out infinite; }
+  @keyframes wave { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+  .wave-arm-l { transform-origin: 18px 55px; animation: armWave 0.6s ease-in-out infinite; }
+  @keyframes armWave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-25deg); } }
+
+  /* Konfeti */
+  .confetti-piece {
+    position: fixed;
+    top: -14px;
+    width: 10px;
+    height: 14px;
+    z-index: 2000;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+  }
+
   /* Dorada za mobitele i manje ekrane */
   @media (max-width: 600px) {
     body { padding: 12px; }
@@ -448,6 +470,7 @@
       });
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
         child.stars++;
+        launchConfetti();
         save(); render();
       });
       starsRow.querySelector('.btn-minus').addEventListener('click', () => {
@@ -471,6 +494,7 @@
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
         child.bigStars++;
+        launchConfetti();
         save(); render();
       });
       bigRow.querySelector('.btn-minus').addEventListener('click', () => {
@@ -536,6 +560,7 @@
           if (task.done) {
             if (jePetica) child.bigStars++;
             else child.stars++;
+            launchConfetti();
           } else {
             if (jePetica) { if (child.bigStars > 0) child.bigStars--; }
             else if (child.stars > 0) child.stars--;
@@ -642,26 +667,58 @@
     '#e67e22', '#1abc9c', '#d63031', '#00cec9', '#a29bfe'
   ];
 
-  // Vraća SVG jedne maštovite zvjezdice zadane boje, s očima i ustima
+  // Vraća SVG jedne maštovite zvjezdice: neke namiguju, neke mašu, neke plaze jezik
   function fancyStarSVG(color, seed) {
-    // Male varijacije izraza lica po sjemenu
-    const smiles = [
-      'M 34 62 Q 50 74 66 62',   // veliki osmijeh
-      'M 36 62 Q 50 70 64 62',   // blagi osmijeh
-      'M 38 64 Q 50 68 62 64'    // sitni osmijeh
-    ];
-    const smile = smiles[seed % smiles.length];
+    const tip = seed % 4; // 0=osmijeh, 1=namiguje, 2=maše, 3=plazi jezik
     const rosy = seed % 2 === 0;
+
+    // Oči
+    let leftEye, rightEye;
+    if (tip === 1) {
+      // namiguje - lijevo oko zatvoreno (crtica)
+      leftEye = '<path d="M 35 48 Q 40 51 45 48" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+    } else {
+      leftEye = '<circle cx="40" cy="48" r="5" fill="#2d3436"/><circle cx="42" cy="46" r="1.6" fill="#fff"/>';
+      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+    }
+
+    // Usta
+    let mouth = '';
+    if (tip === 3) {
+      // plazi jezik - otvorena usta + jezik
+      mouth = `
+        <path d="M 36 60 Q 50 72 64 60 Z" fill="#2d3436"/>
+        <ellipse cx="50" cy="70" rx="7" ry="9" fill="#ff6b81"/>
+        <line x1="50" y1="63" x2="50" y2="74" stroke="#c0392b" stroke-width="1.5"/>`;
+    } else {
+      // veseli osmijeh
+      mouth = '<path d="M 34 62 Q 50 74 66 62" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    }
+
+    // Ruke koje mašu (tip 2)
+    let arms = '';
+    let extraClass = '';
+    if (tip === 2) {
+      arms = `
+        <line class="wave-arm-l" x1="18" y1="55" x2="4" y2="42" stroke="${color}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="82" y1="55" x2="96" y2="62" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
+      extraClass = ' waving';
+    }
+
+    const cheeks = rosy
+      ? '<circle cx="32" cy="58" r="4" fill="#ff7675" opacity="0.55"/><circle cx="68" cy="58" r="4" fill="#ff7675" opacity="0.55"/>'
+      : '';
+
     return `
-    <svg class="fancy-star" viewBox="0 0 100 100" style="animation-delay:${(seed % 8) * 0.08}s">
+    <svg class="fancy-star${extraClass}" viewBox="0 0 100 100" style="animation-delay:${(seed % 8) * 0.08}s">
+      ${arms}
       <polygon points="50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37"
                fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
-      <circle cx="40" cy="48" r="5" fill="#2d3436"/>
-      <circle cx="60" cy="48" r="5" fill="#2d3436"/>
-      <circle cx="42" cy="46" r="1.6" fill="#fff"/>
-      <circle cx="62" cy="46" r="1.6" fill="#fff"/>
-      ${rosy ? '<circle cx="32" cy="58" r="4" fill="#ff7675" opacity="0.55"/><circle cx="68" cy="58" r="4" fill="#ff7675" opacity="0.55"/>' : ''}
-      <path d="${smile}" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>
+      ${leftEye}
+      ${rightEye}
+      ${cheeks}
+      ${mouth}
     </svg>`;
   }
 
@@ -686,6 +743,23 @@
       gallery.innerHTML = html;
     }
     modal.style.display = 'flex';
+  }
+
+  // Konfeti - prospe se preko cijelog ekrana
+  function launchConfetti() {
+    const boje = ['#f39c12','#e74c3c','#8e44ad','#3498db','#00b894','#e84393','#fdcb6e','#0984e3'];
+    const broj = 40;
+    for (let i = 0; i < broj; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = boje[Math.floor(Math.random() * boje.length)];
+      piece.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+      piece.style.animationDelay = (Math.random() * 0.3) + 's';
+      if (Math.random() > 0.5) piece.style.borderRadius = '50%';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3600);
+    }
   }
 
   function closeStarView() {
