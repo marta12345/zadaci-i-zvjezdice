@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zadaci i Zvjezdice ⭐</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='f' cx='38%25' cy='28%25' r='80%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='38%25' stop-color='%23f4ee6a'/%3E%3Cstop offset='75%25' stop-color='%23E6DC1E'/%3E%3Cstop offset='100%25' stop-color='%23a89000'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M50 5 C54 19 56 27 62 31 C68 35 77 35 90 34 C79 45 72 50 71 57 C70 64 74 73 81 86 C68 79 60 76 53 77 C47 78 42 85 35 95 C35 81 35 72 30 65 C25 59 16 55 4 51 C18 47 26 44 31 38 C36 32 37 22 38 9 C43 18 46 24 50 5 Z' fill='url(%23f)' stroke='%23a89000' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cellipse cx='40' cy='26' rx='9' ry='5.5' fill='%23ffffff' opacity='0.5' transform='rotate(-28 40 26)'/%3E%3Cellipse cx='40' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Cellipse cx='60' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Ccircle cx='42.5' cy='42' r='2' fill='%23fff'/%3E%3Ccircle cx='62.5' cy='42' r='2' fill='%23fff'/%3E%3Cpath d='M 33 57 Q 50 82 67 57 Q 50 68 33 57 Z' fill='%231a1a1a'/%3E%3Cpath d='M 42 67 Q 50 77 58 67 Q 50 72 42 67 Z' fill='%23ff5c72'/%3E%3Crect x='46' y='58' width='5' height='6' rx='1' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='f' cx='42%25' cy='32%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23f7f16a'/%3E%3Cstop offset='70%25' stop-color='%23E6DC1E'/%3E%3Cstop offset='100%25' stop-color='%23b0a000'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpolygon points='50,6 63,38 97,38 69,59 80,93 50,72 20,93 31,59 3,38 37,38' fill='url(%23f)' stroke='%23b0a000' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cellipse cx='40' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Cellipse cx='60' cy='45' rx='6' ry='8' fill='%231a1a1a'/%3E%3Ccircle cx='42.5' cy='42' r='2' fill='%23fff'/%3E%3Ccircle cx='62.5' cy='42' r='2' fill='%23fff'/%3E%3Cpath d='M 33 57 Q 50 82 67 57 Q 50 68 33 57 Z' fill='%231a1a1a'/%3E%3Cpath d='M 42 67 Q 50 77 58 67 Q 50 72 42 67 Z' fill='%23ff5c72'/%3E%3Crect x='46' y='58' width='5' height='6' rx='1' fill='%23ffffff'/%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -830,23 +830,22 @@
       extraClass = ' waving';
     }
 
-    // Zaobljena, "napuhana" zvjezdica (debeli krakovi + zaobljeni vrhovi) - kao na slici
+    // Čista klasična petokraka zvjezdica sa zaobljenim uglovima (kao na slici)
     return `
     <svg class="fancy-star${extraClass}" viewBox="0 0 100 100" style="animation-delay:${(seed % 8) * 0.08}s">
       <defs>
-        <radialGradient id="${gid}" cx="38%" cy="28%" r="80%">
-          <stop offset="0%" stop-color="${shade(color, 0.55)}"/>
-          <stop offset="38%" stop-color="${light}"/>
-          <stop offset="75%" stop-color="${color}"/>
+        <radialGradient id="${gid}" cx="42%" cy="32%" r="75%">
+          <stop offset="0%" stop-color="${light}"/>
+          <stop offset="70%" stop-color="${color}"/>
           <stop offset="100%" stop-color="${dark}"/>
         </radialGradient>
       </defs>
       ${arms}
-      <path d="M50 5 C54 19 56 27 62 31 C68 35 77 35 90 34 C79 45 72 50 71 57 C70 64 74 73 81 86 C68 79 60 76 53 77 C47 78 42 85 35 95 C35 81 35 72 30 65 C25 59 16 55 4 51 C18 47 26 44 31 38 C36 32 37 22 38 9 C43 18 46 24 50 5 Z"
-            fill="url(#${gid})" stroke="${dark}" stroke-width="1.8" stroke-linejoin="round"/>
-      <!-- bijeli sjajni odsjaj gore lijevo -->
-      <ellipse cx="40" cy="26" rx="9" ry="5.5" fill="#ffffff" opacity="0.5" transform="rotate(-28 40 26)"/>
-      <ellipse cx="30" cy="20" rx="3.5" ry="2.2" fill="#ffffff" opacity="0.55" transform="rotate(-28 30 20)"/>
+      <polygon points="50,6 63,38 97,38 69,59 80,93 50,72 20,93 31,59 3,38 37,38"
+               fill="url(#${gid})" stroke="${dark}" stroke-width="2.5"
+               stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- suptilni sjaj gore lijevo -->
+      <ellipse cx="41" cy="30" rx="7" ry="4" fill="#ffffff" opacity="0.4" transform="rotate(-25 41 30)"/>
       ${leftEye}
       ${rightEye}
       ${mouth}
