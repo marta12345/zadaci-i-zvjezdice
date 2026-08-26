@@ -782,16 +782,10 @@
     // Usta (ili duda ako je beba)
     let mouth = '';
     if (beba && tip !== 3) {
-      // DUDA (kao na slici): okrugli štitnik + prsten/ručkica koja viri
-      const rozaDuda = seed % 2 === 0;
-      const dudaFill = rozaDuda ? '#fd79a8' : '#55efc4';
-      const dudaStroke = rozaDuda ? '#e84393' : '#00b894';
+      // Beba: mali osmijeh + prava duda kao emoji 🍼 (čisto i prepoznatljivo)
       mouth = `
-        <g>
-          <ellipse cx="50" cy="70" rx="4.5" ry="6" fill="none" stroke="${dudaStroke}" stroke-width="2.4"/>
-          <circle cx="50" cy="62" r="9" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="1.8"/>
-          <circle cx="50" cy="62" r="4" fill="#ffffff" stroke="${dudaStroke}" stroke-width="1.6"/>
-        </g>`;
+        <path d="M 42 60 Q 50 65 58 60" stroke="#2d3436" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <text x="50" y="76" font-size="18" text-anchor="middle">🍼</text>`;
     } else if (tip === 3) {
       // plazi jezik - otvorena usta + jezik
       mouth = `
