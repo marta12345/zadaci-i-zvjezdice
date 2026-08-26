@@ -21,7 +21,7 @@
   }
 
   header h1 {
-    font-size: 2.4rem;
+    font-size: 3.4rem;
     color: #6c5ce7;
     text-shadow: 2px 2px 0 #fff;
   }
@@ -29,14 +29,16 @@
   header p { color: #636e72; margin-top: 6px; font-size: 1rem; }
 
   .clock {
-    display: inline-block;
-    margin-top: 10px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
     background: #ffffff;
     border-radius: 14px;
     padding: 8px 18px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.10);
     font-size: 1.05rem;
     color: #2d3436;
+    z-index: 500;
   }
   .clock .day { font-weight: bold; color: #6c5ce7; text-transform: capitalize; }
   .clock .time { font-weight: bold; color: #00b894; }
@@ -281,9 +283,11 @@
   /* Dorada za mobitele i manje ekrane */
   @media (max-width: 600px) {
     body { padding: 12px; }
-    header { margin-bottom: 18px; }
-    header h1 { font-size: 1.7rem; }
+    header { margin-bottom: 18px; padding-top: 44px; }
+    header h1 { font-size: 2.1rem; }
     header p { font-size: 0.9rem; }
+    /* Na mobitelu sat centriran na vrhu da ne prekriva naslov */
+    .clock { position: static; display: block; margin: 0 auto 10px; text-align: center; width: fit-content; }
     .board { gap: 16px; }
     .child-card { padding: 16px; border-radius: 18px; }
     .child-name { font-size: 1.3rem; }
@@ -298,10 +302,9 @@
 </style>
 </head>
 <body>
+  <div id="clock" class="clock"></div>
   <header>
     <h1>⭐ Zadaci i Zvjezdice ⭐</h1>
-    <div id="clock" class="clock"></div>
-    <p>Ispuni svoja zaduženja i skupljaj nagradne zvjezdice!</p>
   </header>
 
   <div class="board" id="board"></div>
