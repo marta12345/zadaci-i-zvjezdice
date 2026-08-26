@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zadaci i Zvjezdice ⭐</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37' fill='%23F6C744' stroke='%23e8b93a' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -126,8 +127,8 @@
     border: 2px solid #e8b93a;
     margin-top: -6px;
   }
-  .stars-display.big { font-size: 1.45rem; }
-  .big-count { color: #d89e00; }
+  .stars-display.big { font-size: 2.1rem; }
+  .big-count { color: #414a4c; }
   .btn-plus.big-plus { background: #F6C744; }
   .star-btns button {
     border: none;
@@ -573,7 +574,7 @@
       const bigRow = document.createElement('div');
       bigRow.className = 'stars-row big-stars-row';
       bigRow.innerHTML = `
-        <span class="stars-display big clickable" title="Klikni za pregled zvjezdica">🌟</span>
+        <span class="stars-display big clickable" title="Klikni za pregled zvjezdica">⭐</span>
         <span><span class="stars-count big-count">${child.bigStarLog.length}</span> velike zvjezdice</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni veliku zvijezdu">−</button>
@@ -851,7 +852,7 @@
     const modal = document.getElementById('starModal');
     const title = document.getElementById('modalTitle');
     const gallery = document.getElementById('starGallery');
-    const emoji = vrsta === 'velike' ? '🌟' : '⭐';
+    const emoji = '⭐';
     const count = log.length;
     title.textContent = emoji + ' ' + name + ' — ' + count + ' ' + vrsta + ' zvjezdice';
 
