@@ -350,6 +350,11 @@
     'Vježbati ples'
   ];
 
+  // Dodaj prijedloge "Glazbena škola tj.39" do "tj.51"
+  for (let tj = 39; tj <= 51; tj++) {
+    TASK_SUGGESTIONS.push('Glazbena škola tj.' + tj);
+  }
+
   // Automatski (ponavljajući) zadaci po danu u tjednu.
   // Dan: 0 = nedjelja, 1 = ponedjeljak, 2 = utorak, ... 6 = subota.
   // Ovi se zadaci SAMI dodaju svakom djetetu na taj dan u tjednu.
@@ -577,6 +582,9 @@
           const lc = task.text.trim().toLowerCase();
           if (lc.includes('judo')) {
             span.style.color = '#e67e22';      // narančasta
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('glazbena škola')) {
+            span.style.color = '#154360';      // tamnoplava
             span.style.fontWeight = 'bold';
           } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću')) {
             span.style.color = '#8e44ad';      // ljubičasta
