@@ -688,10 +688,13 @@
     // Usta (ili duda ako je beba)
     let mouth = '';
     if (beba && tip !== 3) {
-      // DUDA: štitnik + kolut + gumb (drži se na ustima)
+      // DUDA: naizmjence roza i plava (bolje se vidi na bijeloj podlozi)
+      const rozaDuda = seed % 2 === 0;
+      const dudaFill = rozaDuda ? '#fd79a8' : '#74b9ff';
+      const dudaStroke = rozaDuda ? '#e84393' : '#0984e3';
       mouth = `
-        <ellipse cx="50" cy="64" rx="11" ry="8" fill="#74b9ff" stroke="#0984e3" stroke-width="1.5"/>
-        <circle cx="50" cy="64" r="5" fill="#dff3ff" stroke="#0984e3" stroke-width="1.5"/>
+        <ellipse cx="50" cy="64" rx="11" ry="8" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="1.5"/>
+        <circle cx="50" cy="64" r="5" fill="#ffffff" stroke="${dudaStroke}" stroke-width="1.5"/>
         <ellipse cx="50" cy="55" rx="4.5" ry="4" fill="#ffeaa7" stroke="#fdcb6e" stroke-width="1.5"/>`;
     } else if (tip === 3) {
       // plazi jezik - otvorena usta + jezik
