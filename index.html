@@ -783,9 +783,19 @@
     let mouth = '';
     if (beba && tip !== 3) {
       // Beba: mali osmijeh + prava duda kao emoji 🍼 (čisto i prepoznatljivo)
+      // DUDA kao na slici: veliki okrugli štitnik + prsten (ručkica) koji viri prema dolje.
+      // Naizmjence zelena i roza. BEZ emojija (emoji u SVG-u ruši GitHub Pages build).
+      const rozaDuda = seed % 2 === 0;
+      const dudaFill = rozaDuda ? '#fd79a8' : '#55efc4';
+      const dudaStroke = rozaDuda ? '#e84393' : '#00b894';
       mouth = `
-        <path d="M 42 60 Q 50 65 58 60" stroke="#2d3436" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <text x="50" y="76" font-size="18" text-anchor="middle">🍼</text>`;
+        <g>
+          <ellipse cx="50" cy="74" rx="6" ry="7" fill="none" stroke="${dudaStroke}" stroke-width="3"/>
+          <circle cx="50" cy="63" r="10" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="2"/>
+          <circle cx="46" cy="61" r="1.7" fill="${dudaStroke}"/>
+          <circle cx="54" cy="61" r="1.7" fill="${dudaStroke}"/>
+          <circle cx="50" cy="66" r="1.7" fill="${dudaStroke}"/>
+        </g>`;
     } else if (tip === 3) {
       // plazi jezik - otvorena usta + jezik
       mouth = `
