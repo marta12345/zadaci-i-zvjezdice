@@ -30,18 +30,39 @@
 
   .clock {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 8px 18px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
-    font-size: 1.05rem;
-    color: #2d3436;
+    top: 18px;
+    right: 18px;
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    border: 3px solid #ffffff;
+    border-radius: 22px;
+    padding: 12px 20px;
+    box-shadow: 0 8px 22px rgba(108,92,231,0.35);
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.35;
     z-index: 500;
   }
-  .clock .day { font-weight: bold; color: #6c5ce7; text-transform: capitalize; }
-  .clock .time { font-weight: bold; color: #00b894; }
+  .clock .day {
+    display: block;
+    font-weight: bold;
+    font-size: 1.15rem;
+    text-transform: capitalize;
+    color: #ffeaa7;
+  }
+  .clock .date-line {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.95;
+  }
+  .clock .time {
+    display: block;
+    font-weight: bold;
+    font-size: 1.7rem;
+    letter-spacing: 1px;
+    color: #ffffff;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
 
   .board {
     display: grid;
@@ -665,8 +686,9 @@
     const datum = d.getDate() + '. ' + MJESECI[d.getMonth()] + ' ' + d.getFullYear() + '.';
     const vrijeme = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
     document.getElementById('clock').innerHTML =
-      '<span class="day">' + dan + '</span>, ' + datum +
-      ' &nbsp;•&nbsp; <span class="time">' + vrijeme + '</span>';
+      '<span class="day">📅 ' + dan + '</span>' +
+      '<span class="date-line">' + datum + '</span>' +
+      '<span class="time">🕐 ' + vrijeme + '</span>';
   }
   updateClock();
   setInterval(updateClock, 1000);
