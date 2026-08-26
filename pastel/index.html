@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zadaci i Zvjezdice ⭐</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #95E1D3 0%, #D6F7AD 35%, #FCE38A 70%, #F38181 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #414a4c;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  header h1 {
+    font-size: 3.4rem;
+    color: #e56b6b;
+    text-shadow: 2px 2px 0 #fff;
+  }
+
+  header p { color: #636e72; margin-top: 6px; font-size: 1rem; }
+
+  .clock {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 12px 22px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    text-align: right;
+    line-height: 1.25;
+    z-index: 500;
+  }
+  .clock .day {
+    display: block;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #3fbfa8;
+  }
+  .clock .date-line {
+    display: block;
+    font-size: 1.05rem;
+    color: #b2bec3;
+    margin-top: 2px;
+  }
+  .clock .time {
+    display: block;
+    font-weight: bold;
+    font-size: 1.9rem;
+    letter-spacing: 1px;
+    color: #2d3436;
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .child-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    border-top: 10px solid var(--accent);
+  }
+
+  .child-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .child-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: none;
+    background: transparent;
+    color: #2d3436;
+    width: 100%;
+    font-family: inherit;
+  }
+  .child-name:focus { outline: 2px dashed var(--accent); border-radius: 6px; }
+
+  .stars-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eafaf4;
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin: 12px 0 16px;
+  }
+  .stars-display { font-size: 1.3rem; }
+  .stars-count { font-weight: bold; color: #d89e00; }
+
+  .big-stars-row {
+    background: linear-gradient(135deg, #FCE38A 0%, #F6C744 100%);
+    border: 2px solid #e8b93a;
+    margin-top: -6px;
+  }
+  .stars-display.big { font-size: 1.45rem; }
+  .big-count { color: #d89e00; }
+  .btn-plus.big-plus { background: #F6C744; }
+  .star-btns button {
+    border: none;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 6px;
+    color: #fff;
+    transition: transform 0.1s;
+  }
+  .star-btns button:active { transform: scale(0.9); }
+  .btn-plus { background: #3fbfa8; }
+  .btn-minus { background: #F38181; }
+
+  .add-task {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .add-task input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #dfe6e9;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .add-task input:focus { outline: none; border-color: var(--accent); }
+  .add-task button {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  ul.tasks { list-style: none; flex: 1; }
+  ul.tasks li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: #f5f6fa;
+  }
+  ul.tasks li.done { background: #e4f7cf; }
+  ul.tasks li.done .task-text { text-decoration: line-through; color: #7f8c8d; }
+  .task-check {
+    width: 24px; height: 24px;
+    cursor: pointer;
+    accent-color: #3fbfa8;
+    flex-shrink: 0;
+  }
+  .task-text { flex: 1; font-size: 1rem; word-break: break-word; }
+  .task-edit {
+    flex: 1;
+    font-size: 1rem;
+    font-family: inherit;
+    padding: 4px 8px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    outline: none;
+  }
+  .task-edit-btn {
+    border: none;
+    background: transparent;
+    color: #b2bec3;
+    font-size: 1.05rem;
+    cursor: pointer;
+  }
+  .task-edit-btn:hover { color: var(--accent); }
+  .task-del {
+    border: none;
+    background: #fdecec;
+    color: #F38181;
+    font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .task-del:hover { background: #F38181; color: #fff; }
+  .task-del:active { transform: scale(0.9); }
+
+  .empty { text-align: center; color: #b2bec3; padding: 14px; font-style: italic; }
+
+  .stars-display.clickable { cursor: pointer; transition: transform 0.1s; }
+  .stars-display.clickable:hover { transform: scale(1.25); }
+
+  /* Prozor (modal) za pregled zvjezdica */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+  }
+  .modal-box {
+    background: #fff;
+    border-radius: 22px;
+    padding: 24px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-box h2 { text-align: center; color: #e56b6b; margin-bottom: 18px; }
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    border: none;
+    background: #f1f2f6;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #636e72;
+  }
+  .modal-close:hover { background: #F38181; color: #fff; }
+
+  .star-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .star-empty-msg { color: #b2bec3; font-style: italic; padding: 20px; }
+
+  .star-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 110px;
+    background: #f4fbf8;
+    border-radius: 14px;
+    padding: 10px 6px;
+  }
+  .star-reason {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #2d3436;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .star-time {
+    margin-top: 3px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #2f9e8c;
+    background: #e6f9f3;
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+
+  /* Maštovita zvjezdica (SVG) - lagana animacija poskakivanja */
+  .fancy-star {
+    width: 84px;
+    height: 84px;
+    animation: pop 0.4s ease both, floaty 3s ease-in-out infinite;
+  }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
+
+  /* Zvjezdica koja maše - njiše se malo jače */
+  .fancy-star.waving { animation: pop 0.4s ease both, wave 1.2s ease-in-out infinite; }
+  @keyframes wave { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+  .wave-arm-l { transform-origin: 18px 55px; animation: armWave 0.6s ease-in-out infinite; }
+  @keyframes armWave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-25deg); } }
+
+  /* Konfeti */
+  .confetti-piece {
+    position: fixed;
+    top: -14px;
+    width: 10px;
+    height: 14px;
+    z-index: 2000;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+  }
+
+  /* Dorada za mobitele i manje ekrane */
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    header { margin-bottom: 18px; padding-top: 44px; }
+    header h1 { font-size: 2.1rem; }
+    header p { font-size: 0.9rem; }
+    /* Na mobitelu sat centriran na vrhu da ne prekriva naslov */
+    .clock { position: static; display: block; margin: 0 auto 10px; text-align: center; width: fit-content; }
+    .board { gap: 16px; }
+    .child-card { padding: 16px; border-radius: 18px; }
+    .child-name { font-size: 1.3rem; }
+    .stars-row { flex-wrap: wrap; gap: 6px; }
+    /* Veće tipke da se lakše pogode prstom */
+    .star-btns button { width: 40px; height: 40px; font-size: 1.25rem; }
+    .add-task button { min-width: 46px; }
+    .task-check { width: 26px; height: 26px; }
+    .task-del { width: 38px; height: 38px; }
+    .task-edit-btn { font-size: 1.2rem; padding: 4px; }
+  }
+</style>
+</head>
+<body>
+  <div id="clock" class="clock"></div>
+  <header>
+    <h1>⭐ Zadaci i Zvjezdice ⭐</h1>
+  </header>
+
+  <div class="board" id="board"></div>
+
+  <!-- Prozor za pregled maštovitih zvjezdica -->
+  <div id="starModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <button class="modal-close" title="Zatvori">✕</button>
+      <h2 id="modalTitle">Zvjezdice</h2>
+      <div id="starGallery" class="star-gallery"></div>
+    </div>
+  </div>
+
+<script>
+  const STORAGE_KEY = 'zadaci_zvjezdice_v1';
+
+  // Zadane vrijednosti za troje djece
+  const defaultData = [
+    { name: 'Dijete 1', emoji: '🦈', color: '#95E1D3', starLog: [], bigStarLog: [], tasks: [] },
+    { name: 'Dijete 2', emoji: '🐰', color: '#F38181', starLog: [], bigStarLog: [], tasks: [] },
+    { name: 'Dijete 3', emoji: '🐻', color: '#F6C744', starLog: [], bigStarLog: [], tasks: [] }
+  ];
+
+  // Prijedlozi zaduženja koji se automatski nude tijekom pisanja
+  const TASK_SUGGESTIONS = [
+    'Napisati zadaću PON',
+    'Napisati zadaću UTO',
+    'Napisati zadaću SRI',
+    'Napisati zadaću ČET',
+    'Napisati zadaću PET',
+    'Judo trening UTO',
+    'Judo trening ČET',
+    'Petica iz testa',
+    'Naučiti za test',
+    'Pospremiti sobu',
+    'Pospremiti krevet',
+    'Oprati zube',
+    'Iznijeti smeće',
+    'Postaviti stol',
+    'Pospremiti igračke',
+    'Čitati 15 minuta',
+    'Pomoći u kuhinji',
+    'Spremiti torbu za školu',
+    'Vježbati klavir',
+    'Vježbati saksofon',
+    'Vježbati ples'
+  ];
+
+  // Dodaj prijedloge "Glazbena škola tj.39" do "tj.51"
+  for (let tj = 39; tj <= 51; tj++) {
+    TASK_SUGGESTIONS.push('Glazbena škola tj.' + tj);
+  }
+
+  // Automatski (ponavljajući) zadaci po danu u tjednu.
+  // Dan: 0 = nedjelja, 1 = ponedjeljak, 2 = utorak, ... 6 = subota.
+  // Ovi se zadaci SAMI dodaju svakom djetetu na taj dan u tjednu.
+  const WEEKLY_TASKS = {
+    1: ['Napiši zadaću', 'Judo trening']   // svaki PONEDJELJAK
+  };
+
+  let children = load();
+
+  // Automatsko dodavanje ponavljajućih zadataka za današnji dan.
+  applyWeeklyTasks();
+
+  // Vraća datum kao "GGGG-MM-DD" po lokalnom vremenu
+  function todayKey() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function applyWeeklyTasks() {
+    const today = todayKey();
+    const weekday = new Date().getDay();          // 0-6
+    const planned = WEEKLY_TASKS[weekday] || [];
+    if (planned.length === 0) return;
+
+    // Pamtimo za koji smo datum već dodali automatske zadatke,
+    // da se ne dupliciraju pri svakom otvaranju istog dana.
+    const lastApplied = localStorage.getItem('weekly_applied_date');
+    if (lastApplied === today) return;
+
+    children.forEach(child => {
+      planned.forEach(text => {
+        // Dodaj samo ako taj zadatak već ne postoji među neobavljenima
+        const postoji = child.tasks.some(t => t.text === text && !t.done);
+        if (!postoji) child.tasks.push({ text, done: false, auto: true });
+      });
+    });
+
+    localStorage.setItem('weekly_applied_date', today);
+    save();
+  }
+
+  // Pretvara spremljene podatke u niz zapisa {reason, time}.
+  // Ako je već niz - zadrži ga; ako je stari broj - napravi N generičkih zapisa.
+  function normalizeLog(maybeLog, maybeNumber) {
+    if (Array.isArray(maybeLog)) return maybeLog;
+    const n = typeof maybeNumber === 'number' ? maybeNumber : 0;
+    const arr = [];
+    for (let i = 0; i < n; i++) arr.push({ reason: 'Ranije skupljeno', time: null });
+    return arr;
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // Uvijek primijeni najnovije boje i životinje iz koda,
+        // a zadrži spremljena imena, zvjezdice i zadatke.
+        return defaultData.map((def, i) => {
+          const s = saved[i] || {};
+          return {
+            name: s.name || def.name,
+            emoji: def.emoji,   // uvijek nova životinja
+            color: def.color,   // uvijek nova boja
+            // Nove liste zapisa (pamte razlog i vrijeme).
+            // Backward-compat: ako su spremljeni stari brojevi, pretvori ih u zapise.
+            starLog: normalizeLog(s.starLog, s.stars),
+            bigStarLog: normalizeLog(s.bigStarLog, s.bigStars),
+            tasks: Array.isArray(s.tasks) ? s.tasks : []
+          };
+        });
+      }
+    } catch (e) { /* ignore */ }
+    return JSON.parse(JSON.stringify(defaultData));
+  }
+
+  // Pravilo: 3 mini zvjezdice = 1 velika zvijezda.
+  // Kad se skupi 3 mini, pretvore se u jednu veliku (uz razlog koji ih spaja).
+  function convertStars(child) {
+    while (child.starLog.length >= 3) {
+      const grupa = child.starLog.splice(0, 3);           // uzmi 3 najstarije
+      const razlozi = grupa.map(z => z.reason).join(', ');
+      child.bigStarLog.push({
+        reason: '3 mini zvjezdice (' + razlozi + ')',
+        time: Date.now()
+      });
+    }
+  }
+
+  // Doda mini zvjezdicu s razlogom
+  function addStar(child, reason) {
+    child.starLog.push({ reason: reason, time: Date.now() });
+  }
+  // Doda veliku zvjezdicu s razlogom
+  function addBigStar(child, reason) {
+    child.bigStarLog.push({ reason: reason, time: Date.now() });
+  }
+  // Ukloni zadnju zvjezdicu čiji razlog odgovara zadatku (za "undo" kvačice).
+  // Ako nema takve, ukloni zadnju bilo koju.
+  function removeStarByReason(log, reason) {
+    for (let i = log.length - 1; i >= 0; i--) {
+      if (log[i].reason === reason) { log.splice(i, 1); return; }
+    }
+    if (log.length > 0) log.pop();
+  }
+
+  function save() {
+    children.forEach(convertStars);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
+  }
+
+  function render() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
+    children.forEach((child, ci) => {
+      const card = document.createElement('div');
+      card.className = 'child-card';
+      card.style.setProperty('--accent', child.color);
+
+      // Header s imenom
+      const header = document.createElement('div');
+      header.className = 'child-header';
+      header.innerHTML = `<div class="avatar">${child.emoji}</div>`;
+      const nameInput = document.createElement('input');
+      nameInput.className = 'child-name';
+      nameInput.value = child.name;
+      nameInput.title = 'Klikni za promjenu imena';
+      nameInput.addEventListener('change', () => {
+        child.name = nameInput.value.trim() || ('Dijete ' + (ci + 1));
+        save();
+      });
+      header.appendChild(nameInput);
+      card.appendChild(header);
+
+      // Obične zvjezdice
+      const starsRow = document.createElement('div');
+      starsRow.className = 'stars-row';
+      starsRow.innerHTML = `
+        <span class="stars-display clickable" title="Klikni za pregled zvjezdica">⭐</span>
+        <span><span class="stars-count">${child.starLog.length}</span> mini zvjezdice</span>
+        <span class="star-btns">
+          <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
+          <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
+        </span>`;
+      starsRow.querySelector('.stars-display').addEventListener('click', () => {
+        openStarView(child.name, child.starLog, 'mini');
+      });
+      starsRow.querySelector('.btn-plus').addEventListener('click', () => {
+        addStar(child, 'Ručno dodano');
+        launchConfetti();
+        save(); render();
+      });
+      starsRow.querySelector('.btn-minus').addEventListener('click', () => {
+        if (child.starLog.length > 0) child.starLog.pop();
+        save(); render();
+      });
+      card.appendChild(starsRow);
+
+      // Velike zvijezde - nagrada za peticu iz testa
+      const bigRow = document.createElement('div');
+      bigRow.className = 'stars-row big-stars-row';
+      bigRow.innerHTML = `
+        <span class="stars-display big clickable" title="Klikni za pregled zvjezdica">🌟</span>
+        <span><span class="stars-count big-count">${child.bigStarLog.length}</span> velike zvjezdice</span>
+        <span class="star-btns">
+          <button class="btn-minus" title="Ukloni veliku zvijezdu">−</button>
+          <button class="btn-plus big-plus" title="Velika zvijezda za peticu iz testa">+</button>
+        </span>`;
+      bigRow.querySelector('.stars-display').addEventListener('click', () => {
+        openStarView(child.name, child.bigStarLog, 'velike');
+      });
+      bigRow.querySelector('.big-plus').addEventListener('click', () => {
+        addBigStar(child, 'Petica iz testa');
+        launchConfetti();
+        save(); render();
+      });
+      bigRow.querySelector('.btn-minus').addEventListener('click', () => {
+        if (child.bigStarLog.length > 0) child.bigStarLog.pop();
+        save(); render();
+      });
+      card.appendChild(bigRow);
+
+      // Unos novog zadatka
+      const addRow = document.createElement('div');
+      addRow.className = 'add-task';
+      const taskInput = document.createElement('input');
+      taskInput.placeholder = 'Novo zaduženje...';
+      // Automatski prijedlozi teksta tijekom pisanja
+      const listId = 'suggestions-' + ci;
+      taskInput.setAttribute('list', listId);
+      taskInput.setAttribute('autocomplete', 'off');
+      const datalist = document.createElement('datalist');
+      datalist.id = listId;
+      TASK_SUGGESTIONS.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        datalist.appendChild(opt);
+      });
+      addRow.appendChild(datalist);
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+';
+      addBtn.title = 'Dodaj zaduženje';
+      function addTask() {
+        const text = taskInput.value.trim();
+        if (!text) return;
+        child.tasks.push({ text, done: false });
+        taskInput.value = '';
+        save(); render();
+      }
+      addBtn.addEventListener('click', addTask);
+      taskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+      addRow.appendChild(taskInput);
+      addRow.appendChild(addBtn);
+      card.appendChild(addRow);
+
+      // Lista zadataka
+      const ul = document.createElement('ul');
+      ul.className = 'tasks';
+      if (child.tasks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Još nema zaduženja 🌱';
+        ul.appendChild(empty);
+      }
+      child.tasks.forEach((task, ti) => {
+        const li = document.createElement('li');
+        if (task.done) li.classList.add('done');
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.className = 'task-check';
+        check.checked = task.done;
+        check.addEventListener('change', () => {
+          task.done = check.checked;
+          // Zadatak "Petica iz testa" nosi VELIKU zvijezdu, ostali obicnu.
+          const jePetica = task.text.trim().toLowerCase() === 'petica iz testa';
+          if (task.done) {
+            if (jePetica) addBigStar(child, task.text);
+            else addStar(child, task.text);
+            launchConfetti();
+          } else {
+            if (jePetica) removeStarByReason(child.bigStarLog, task.text);
+            else removeStarByReason(child.starLog, task.text);
+          }
+          save(); render();
+        });
+
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task.text;
+
+        // Bojanje teksta prema vrsti zadatka (samo dok nije prekrižen)
+        if (!task.done) {
+          const lc = task.text.trim().toLowerCase();
+          if (lc.includes('judo')) {
+            span.style.color = '#e67e22';      // narančasta
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('glazbena škola')) {
+            span.style.color = '#154360';      // tamnoplava
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću')) {
+            span.style.color = '#8e44ad';      // ljubičasta
+            span.style.fontWeight = 'bold';
+          } else if (lc.includes('petica iz testa')) {
+            span.style.color = '#8b5a2b';      // smeđa
+            span.style.fontWeight = 'bold';
+          }
+        }
+
+        li.appendChild(check);
+        li.appendChild(span);
+
+        // Uređivanje teksta - dostupno samo dok zadatak NIJE obavljen
+        if (!task.done) {
+          span.title = 'Klikni olovku za uređivanje';
+
+          function startEdit() {
+            const edit = document.createElement('input');
+            edit.type = 'text';
+            edit.className = 'task-edit';
+            edit.value = task.text;
+            span.replaceWith(edit);
+            editBtn.style.display = 'none';
+            edit.focus();
+            edit.select();
+
+            function finish(saveChange) {
+              const val = edit.value.trim();
+              if (saveChange && val) task.text = val;
+              save(); render();
+            }
+            edit.addEventListener('keydown', e => {
+              if (e.key === 'Enter') finish(true);
+              else if (e.key === 'Escape') finish(false);
+            });
+            edit.addEventListener('blur', () => finish(true));
+          }
+
+          var editBtn = document.createElement('button');
+          editBtn.className = 'task-edit-btn';
+          editBtn.textContent = '✏️';
+          editBtn.title = 'Uredi zaduženje';
+          editBtn.addEventListener('click', startEdit);
+          li.appendChild(editBtn);
+        }
+
+        const del = document.createElement('button');
+        del.className = 'task-del';
+        del.textContent = '🗑';
+        del.title = 'Obriši zaduženje';
+        del.addEventListener('click', () => {
+          child.tasks.splice(ti, 1);
+          save(); render();
+        });
+
+        li.appendChild(del);
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+
+      board.appendChild(card);
+    });
+  }
+
+  // Sat i datum uživo (dan u tjednu, datum, sat:minuta:sekunda)
+  const DANI = ['nedjelja', 'ponedjeljak', 'utorak', 'srijeda', 'četvrtak', 'petak', 'subota'];
+  const MJESECI = ['siječnja','veljače','ožujka','travnja','svibnja','lipnja',
+                   'srpnja','kolovoza','rujna','listopada','studenoga','prosinca'];
+
+  function updateClock() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    const dan = DANI[d.getDay()];
+    const datum = d.getDate() + '. ' + MJESECI[d.getMonth()] + ' ' + d.getFullYear() + '.';
+    const vrijeme = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    document.getElementById('clock').innerHTML =
+      '<span class="day">' + dan + '</span>' +
+      '<span class="date-line">' + datum + '</span>' +
+      '<span class="time">' + vrijeme + '</span>';
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ---- Pregled maštovitih zvjezdica ----
+  const STAR_COLORS = [
+    '#F38181', '#FCE38A', '#D6F7AD', '#95E1D3',
+    '#F6A5A5', '#F6C744', '#BEE9A0', '#7FD6C6',
+    '#EF6E6E', '#FFD86B', '#C3F09A', '#A9E8DC'
+  ];
+
+  // Vraća SVG jedne maštovite zvjezdice: neke namiguju, neke mašu, neke plaze jezik.
+  // Mini zvjezdice su bebe - imaju dudu i pelenu.
+  function fancyStarSVG(color, seed, vrsta) {
+    const beba = vrsta === 'mini';
+    const tip = seed % 4; // 0=osmijeh, 1=namiguje, 2=maše, 3=plazi jezik
+    const rosy = seed % 2 === 0;
+
+    // Oči
+    let leftEye, rightEye;
+    if (tip === 1) {
+      // namiguje - lijevo oko zatvoreno (crtica)
+      leftEye = '<path d="M 35 48 Q 40 51 45 48" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+    } else {
+      leftEye = '<circle cx="40" cy="48" r="5" fill="#2d3436"/><circle cx="42" cy="46" r="1.6" fill="#fff"/>';
+      rightEye = '<circle cx="60" cy="48" r="5" fill="#2d3436"/><circle cx="62" cy="46" r="1.6" fill="#fff"/>';
+    }
+
+    // Usta (ili duda ako je beba)
+    let mouth = '';
+    if (beba && tip !== 3) {
+      // Beba: mali osmijeh + prava duda kao emoji 🍼 (čisto i prepoznatljivo)
+      // DUDA kao na slici: veliki okrugli štitnik + prsten (ručkica) koji viri prema dolje.
+      // Naizmjence zelena i roza. BEZ emojija (emoji u SVG-u ruši GitHub Pages build).
+      const rozaDuda = seed % 2 === 0;
+      const dudaFill = rozaDuda ? '#fd79a8' : '#55efc4';
+      const dudaStroke = rozaDuda ? '#e84393' : '#00b894';
+      mouth = `
+        <g>
+          <ellipse cx="50" cy="74" rx="6" ry="7" fill="none" stroke="${dudaStroke}" stroke-width="3"/>
+          <circle cx="50" cy="63" r="10" fill="${dudaFill}" stroke="${dudaStroke}" stroke-width="2"/>
+          <circle cx="46" cy="61" r="1.7" fill="${dudaStroke}"/>
+          <circle cx="54" cy="61" r="1.7" fill="${dudaStroke}"/>
+          <circle cx="50" cy="66" r="1.7" fill="${dudaStroke}"/>
+        </g>`;
+    } else if (tip === 3) {
+      // plazi jezik - otvorena usta + jezik
+      mouth = `
+        <path d="M 36 60 Q 50 72 64 60 Z" fill="#2d3436"/>
+        <ellipse cx="50" cy="70" rx="7" ry="9" fill="#ff6b81"/>
+        <line x1="50" y1="63" x2="50" y2="74" stroke="#c0392b" stroke-width="1.5"/>`;
+    } else {
+      // veseli osmijeh
+      mouth = '<path d="M 34 62 Q 50 74 66 62" stroke="#2d3436" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    }
+
+    // Pelena uklonjena na zahtjev
+    let diaper = '';
+
+    // Ruke koje mašu (tip 2)
+    let arms = '';
+    let extraClass = '';
+    if (tip === 2) {
+      arms = `
+        <line class="wave-arm-l" x1="18" y1="55" x2="4" y2="42" stroke="${color}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="82" y1="55" x2="96" y2="62" stroke="${color}" stroke-width="6" stroke-linecap="round"/>`;
+      extraClass = ' waving';
+    }
+
+    const cheeks = rosy
+      ? '<circle cx="32" cy="58" r="4" fill="#ff7675" opacity="0.55"/><circle cx="68" cy="58" r="4" fill="#ff7675" opacity="0.55"/>'
+      : '';
+
+    return `
+    <svg class="fancy-star${extraClass}" viewBox="0 0 100 100" style="animation-delay:${(seed % 8) * 0.08}s">
+      ${arms}
+      <polygon points="50,5 61,37 95,37 67,58 78,92 50,70 22,92 33,58 5,37 39,37"
+               fill="${color}" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+      ${leftEye}
+      ${rightEye}
+      ${cheeks}
+      ${mouth}
+      ${diaper}
+    </svg>`;
+  }
+
+  // Formatira vrijeme zapisa u čitljiv oblik (npr. "pon 8:15")
+  function formatStarTime(ms) {
+    if (!ms) return '';
+    const d = new Date(ms);
+    const kratki = ['ned','pon','uto','sri','čet','pet','sub'];
+    const p = n => String(n).padStart(2, '0');
+    return kratki[d.getDay()] + ' ' + d.getDate() + '.' + (d.getMonth() + 1) + '. ' +
+           p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function openStarView(name, log, vrsta) {
+    const modal = document.getElementById('starModal');
+    const title = document.getElementById('modalTitle');
+    const gallery = document.getElementById('starGallery');
+    const emoji = vrsta === 'velike' ? '🌟' : '⭐';
+    const count = log.length;
+    title.textContent = emoji + ' ' + name + ' — ' + count + ' ' + vrsta + ' zvjezdice';
+
+    if (count <= 0) {
+      gallery.innerHTML = '<div class="star-empty-msg">Još nema skupljenih zvjezdica. Riješi zadatke! 💪</div>';
+    } else {
+      let html = '';
+      const koliko = Math.min(count, 200); // sigurnosno ograničenje prikaza
+      for (let i = 0; i < koliko; i++) {
+        const color = STAR_COLORS[i % STAR_COLORS.length];
+        const scale = vrsta === 'velike' ? 'style="transform:scale(1.15)"' : '';
+        const zapis = log[i] || {};
+        const razlog = zapis.reason || 'Zvjezdica';
+        const vrijeme = formatStarTime(zapis.time);
+        html += '<div class="star-item">' +
+                  '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>' +
+                  '<div class="star-reason">' + escapeHtml(razlog) + '</div>' +
+                  (vrijeme ? '<div class="star-time">' + vrijeme + '</div>' : '') +
+                '</div>';
+      }
+      gallery.innerHTML = html;
+    }
+    modal.style.display = 'flex';
+  }
+
+  // Sprječava probleme ako naziv zadatka sadrži < > &
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Konfeti - prospe se preko cijelog ekrana
+  function launchConfetti() {
+    const boje = ['#f39c12','#e74c3c','#8e44ad','#3498db','#00b894','#e84393','#fdcb6e','#0984e3'];
+    const broj = 40;
+    for (let i = 0; i < broj; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = boje[Math.floor(Math.random() * boje.length)];
+      piece.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+      piece.style.animationDelay = (Math.random() * 0.3) + 's';
+      if (Math.random() > 0.5) piece.style.borderRadius = '50%';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3600);
+    }
+  }
+
+  function closeStarView() {
+    document.getElementById('starModal').style.display = 'none';
+  }
+  document.querySelector('.modal-close').addEventListener('click', closeStarView);
+  document.getElementById('starModal').addEventListener('click', (e) => {
+    if (e.target.id === 'starModal') closeStarView(); // klik izvan kutije zatvara
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStarView(); });
+
+  render();
+</script>
+</body>
+</html>
