@@ -270,6 +270,30 @@
   }
   .star-empty-msg { color: #b2bec3; font-style: italic; padding: 20px; }
 
+  .star-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 110px;
+    background: #f8f9ff;
+    border-radius: 14px;
+    padding: 10px 6px;
+  }
+  .star-reason {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #2d3436;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .star-time {
+    margin-top: 2px;
+    font-size: 0.72rem;
+    color: #b2bec3;
+  }
+
   /* Maštovita zvjezdica (SVG) - lagana animacija poskakivanja */
   .fancy-star {
     width: 84px;
@@ -344,9 +368,9 @@
 
   // Zadane vrijednosti za troje djece
   const defaultData = [
-    { name: 'Dijete 1', emoji: '🦈', color: '#0984e3', stars: 0, bigStars: 0, tasks: [] },
-    { name: 'Dijete 2', emoji: '🐰', color: '#e84393', stars: 0, bigStars: 0, tasks: [] },
-    { name: 'Dijete 3', emoji: '🐻', color: '#00b894', stars: 0, bigStars: 0, tasks: [] }
+    { name: 'Dijete 1', emoji: '🦈', color: '#0984e3', starLog: [], bigStarLog: [], tasks: [] },
+    { name: 'Dijete 2', emoji: '🐰', color: '#e84393', starLog: [], bigStarLog: [], tasks: [] },
+    { name: 'Dijete 3', emoji: '🐻', color: '#00b894', starLog: [], bigStarLog: [], tasks: [] }
   ];
 
   // Prijedlozi zaduženja koji se automatski nude tijekom pisanja
@@ -422,6 +446,16 @@
     save();
   }
 
+  // Pretvara spremljene podatke u niz zapisa {reason, time}.
+  // Ako je već niz - zadrži ga; ako je stari broj - napravi N generičkih zapisa.
+  function normalizeLog(maybeLog, maybeNumber) {
+    if (Array.isArray(maybeLog)) return maybeLog;
+    const n = typeof maybeNumber === 'number' ? maybeNumber : 0;
+    const arr = [];
+    for (let i = 0; i < n; i++) arr.push({ reason: 'Ranije skupljeno', time: null });
+    return arr;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -435,8 +469,10 @@
             name: s.name || def.name,
             emoji: def.emoji,   // uvijek nova životinja
             color: def.color,   // uvijek nova boja
-            stars: typeof s.stars === 'number' ? s.stars : 0,
-            bigStars: typeof s.bigStars === 'number' ? s.bigStars : 0,
+            // Nove liste zapisa (pamte razlog i vrijeme).
+            // Backward-compat: ako su spremljeni stari brojevi, pretvori ih u zapise.
+            starLog: normalizeLog(s.starLog, s.stars),
+            bigStarLog: normalizeLog(s.bigStarLog, s.bigStars),
             tasks: Array.isArray(s.tasks) ? s.tasks : []
           };
         });
@@ -445,14 +481,34 @@
     return JSON.parse(JSON.stringify(defaultData));
   }
 
-  // Pravilo: 3 male zvjezdice = 1 velika zvijezda.
-  // Kad se skupi 3 obične, pretvore se u jednu veliku.
+  // Pravilo: 3 mini zvjezdice = 1 velika zvijezda.
+  // Kad se skupi 3 mini, pretvore se u jednu veliku (uz razlog koji ih spaja).
   function convertStars(child) {
-    if (child.stars >= 3) {
-      const converted = Math.floor(child.stars / 3);
-      child.bigStars += converted;
-      child.stars = child.stars % 3;
+    while (child.starLog.length >= 3) {
+      const grupa = child.starLog.splice(0, 3);           // uzmi 3 najstarije
+      const razlozi = grupa.map(z => z.reason).join(', ');
+      child.bigStarLog.push({
+        reason: '3 mini zvjezdice (' + razlozi + ')',
+        time: Date.now()
+      });
     }
+  }
+
+  // Doda mini zvjezdicu s razlogom
+  function addStar(child, reason) {
+    child.starLog.push({ reason: reason, time: Date.now() });
+  }
+  // Doda veliku zvjezdicu s razlogom
+  function addBigStar(child, reason) {
+    child.bigStarLog.push({ reason: reason, time: Date.now() });
+  }
+  // Ukloni zadnju zvjezdicu čiji razlog odgovara zadatku (za "undo" kvačice).
+  // Ako nema takve, ukloni zadnju bilo koju.
+  function removeStarByReason(log, reason) {
+    for (let i = log.length - 1; i >= 0; i--) {
+      if (log[i].reason === reason) { log.splice(i, 1); return; }
+    }
+    if (log.length > 0) log.pop();
   }
 
   function save() {
@@ -489,21 +545,21 @@
       starsRow.className = 'stars-row';
       starsRow.innerHTML = `
         <span class="stars-display clickable" title="Klikni za pregled zvjezdica">⭐</span>
-        <span><span class="stars-count">${child.stars}</span> mini zvjezdice</span>
+        <span><span class="stars-count">${child.starLog.length}</span> mini zvjezdice</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni zvjezdicu">−</button>
           <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
         </span>`;
       starsRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.stars, 'mini');
+        openStarView(child.name, child.starLog, 'mini');
       });
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
-        child.stars++;
+        addStar(child, 'Ručno dodano');
         launchConfetti();
         save(); render();
       });
       starsRow.querySelector('.btn-minus').addEventListener('click', () => {
-        if (child.stars > 0) child.stars--;
+        if (child.starLog.length > 0) child.starLog.pop();
         save(); render();
       });
       card.appendChild(starsRow);
@@ -513,21 +569,21 @@
       bigRow.className = 'stars-row big-stars-row';
       bigRow.innerHTML = `
         <span class="stars-display big clickable" title="Klikni za pregled zvjezdica">🌟</span>
-        <span><span class="stars-count big-count">${child.bigStars}</span> velike zvjezdice</span>
+        <span><span class="stars-count big-count">${child.bigStarLog.length}</span> velike zvjezdice</span>
         <span class="star-btns">
           <button class="btn-minus" title="Ukloni veliku zvijezdu">−</button>
           <button class="btn-plus big-plus" title="Velika zvijezda za peticu iz testa">+</button>
         </span>`;
       bigRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.bigStars, 'velike');
+        openStarView(child.name, child.bigStarLog, 'velike');
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
-        child.bigStars++;
+        addBigStar(child, 'Petica iz testa');
         launchConfetti();
         save(); render();
       });
       bigRow.querySelector('.btn-minus').addEventListener('click', () => {
-        if (child.bigStars > 0) child.bigStars--;
+        if (child.bigStarLog.length > 0) child.bigStarLog.pop();
         save(); render();
       });
       card.appendChild(bigRow);
@@ -587,12 +643,12 @@
           // Zadatak "Petica iz testa" nosi VELIKU zvijezdu, ostali obicnu.
           const jePetica = task.text.trim().toLowerCase() === 'petica iz testa';
           if (task.done) {
-            if (jePetica) child.bigStars++;
-            else child.stars++;
+            if (jePetica) addBigStar(child, task.text);
+            else addStar(child, task.text);
             launchConfetti();
           } else {
-            if (jePetica) { if (child.bigStars > 0) child.bigStars--; }
-            else if (child.stars > 0) child.stars--;
+            if (jePetica) removeStarByReason(child.bigStarLog, task.text);
+            else removeStarByReason(child.starLog, task.text);
           }
           save(); render();
         });
@@ -776,11 +832,22 @@
     </svg>`;
   }
 
-  function openStarView(name, count, vrsta) {
+  // Formatira vrijeme zapisa u čitljiv oblik (npr. "pon 8:15")
+  function formatStarTime(ms) {
+    if (!ms) return '';
+    const d = new Date(ms);
+    const kratki = ['ned','pon','uto','sri','čet','pet','sub'];
+    const p = n => String(n).padStart(2, '0');
+    return kratki[d.getDay()] + ' ' + d.getDate() + '.' + (d.getMonth() + 1) + '. ' +
+           p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function openStarView(name, log, vrsta) {
     const modal = document.getElementById('starModal');
     const title = document.getElementById('modalTitle');
     const gallery = document.getElementById('starGallery');
     const emoji = vrsta === 'velike' ? '🌟' : '⭐';
+    const count = log.length;
     title.textContent = emoji + ' ' + name + ' — ' + count + ' ' + vrsta + ' zvjezdice';
 
     if (count <= 0) {
@@ -790,13 +857,26 @@
       const koliko = Math.min(count, 200); // sigurnosno ograničenje prikaza
       for (let i = 0; i < koliko; i++) {
         const color = STAR_COLORS[i % STAR_COLORS.length];
-        // Velike zvjezdice prikazujemo malo krupnije
         const scale = vrsta === 'velike' ? 'style="transform:scale(1.15)"' : '';
-        html += '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>';
+        const zapis = log[i] || {};
+        const razlog = zapis.reason || 'Zvjezdica';
+        const vrijeme = formatStarTime(zapis.time);
+        html += '<div class="star-item">' +
+                  '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>' +
+                  '<div class="star-reason">' + escapeHtml(razlog) + '</div>' +
+                  (vrijeme ? '<div class="star-time">' + vrijeme + '</div>' : '') +
+                '</div>';
       }
       gallery.innerHTML = html;
     }
     modal.style.display = 'flex';
+  }
+
+  // Sprječava probleme ako naziv zadatka sadrži < > &
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   // Konfeti - prospe se preko cijelog ekrana
