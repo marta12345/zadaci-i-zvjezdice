@@ -145,7 +145,7 @@
 
   .add-task {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 12px;
   }
   .add-task input {
@@ -193,6 +193,7 @@
     cursor: pointer;
     width: 32px;
     height: 32px;
+    margin-left: 2px;
   }
   .btn-star-direct {
     border: none;
@@ -202,7 +203,7 @@
     border-radius: 10px;
     font-size: 0.9rem;
     cursor: pointer;
-    margin-left: 4px;
+    margin-left: 2px;
     width: 32px;
     height: 32px;
   }
@@ -669,10 +670,9 @@
       function showDropdown() {
         const val = taskInput.value.trim().toLowerCase();
         const filtered = TASK_SUGGESTIONS.filter(s => s.toLowerCase().includes(val));
-        const show = filtered.slice(0, 10);
-        if (show.length === 0) { dropdown.classList.remove('show'); return; }
+        if (filtered.length === 0) { dropdown.classList.remove('show'); return; }
         dropdown.innerHTML = '';
-        show.forEach(s => {
+        filtered.forEach(s => {
           const item = document.createElement('div');
           item.textContent = s;
           item.addEventListener('mousedown', (e) => {
