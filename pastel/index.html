@@ -1011,19 +1011,23 @@
            p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  // Globalna funkcija za brisanje zvjezdice (poziva se iz inline onclick)
-  window.deleteStar = function(childIdx, vrsta, starIdx) {
-    var child = children[childIdx];
+  // Brisanje zvjezdica preko event delegation na galeriji
+  document.getElementById('starGallery').addEventListener('click', function(e) {
+    const btn = e.target.closest('.star-del-btn');
+    if (!btn) return;
+    const ci = parseInt(btn.getAttribute('data-ci'));
+    const vrsta = btn.getAttribute('data-vrsta');
+    const si = parseInt(btn.getAttribute('data-si'));
+    var child = children[ci];
     var log = vrsta === 'velike' ? child.bigStarLog : child.starLog;
-    if (starIdx >= 0 && starIdx < log.length) {
-      log.splice(starIdx, 1);
+    if (si >= 0 && si < log.length) {
+      log.splice(si, 1);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
-      openStarView(child.name, log, vrsta, child, childIdx);
+      openStarView(child.name, log, vrsta, child, ci);
     }
-  };
+  });
 
   function openStarView(name, log, vrsta, childRef, childIdx) {
-    lastStarView = { name, log, vrsta, childRef, childIdx };
     const modal = document.getElementById('starModal');
     const title = document.getElementById('modalTitle');
     const gallery = document.getElementById('starGallery');
@@ -1044,7 +1048,7 @@
         const vrijeme = formatStarTime(zapis.time);
 
         html += '<div class="star-item">' +
-          '<button class="star-del-btn" onclick="deleteStar(' + childIdx + ',\'' + vrsta + '\',' + i + ')" title="Obriši">✕</button>' +
+          '<button class="star-del-btn" data-ci="' + childIdx + '" data-vrsta="' + vrsta + '" data-si="' + i + '" title="Obriši">✕</button>' +
           '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>' +
           '<div class="star-reason">' + escapeHtml(razlog) + '</div>' +
           (vrijeme ? '<div class="star-time">' + vrijeme + '</div>' : '') +
