@@ -342,7 +342,27 @@
     background: #f4fbf8;
     border-radius: 14px;
     padding: 10px 6px;
+    position: relative;
   }
+  .star-del-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: #F38181;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+  .star-del-btn:hover { opacity: 1; }
   .star-reason {
     margin-top: 4px;
     font-size: 0.8rem;
@@ -620,7 +640,7 @@
           <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
         </span>`;
       starsRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.starLog, 'mini');
+        openStarView(child.name, child.starLog, 'mini', child);
       });
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
         addStar(child, 'Ručno dodano');
@@ -644,7 +664,7 @@
           <button class="btn-plus big-plus" title="Velika zvijezda za peticu iz testa">+</button>
         </span>`;
       bigRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.bigStarLog, 'velike');
+        openStarView(child.name, child.bigStarLog, 'velike', child);
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
         addBigStar(child, 'Petica u školi');
@@ -988,7 +1008,11 @@
            p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  function openStarView(name, log, vrsta) {
+  // Pamti zadnji otvoreni pregled za refresh nakon brisanja
+  let lastStarView = null;
+
+  function openStarView(name, log, vrsta, childRef) {
+    lastStarView = { name, log, vrsta, childRef };
     const modal = document.getElementById('starModal');
     const title = document.getElementById('modalTitle');
     const gallery = document.getElementById('starGallery');
@@ -999,21 +1023,50 @@
     if (count <= 0) {
       gallery.innerHTML = '<div class="star-empty-msg">Još nema skupljenih zvjezdica. Riješi zadatke! 💪</div>';
     } else {
-      let html = '';
-      const koliko = Math.min(count, 200); // sigurnosno ograničenje prikaza
+      gallery.innerHTML = '';
+      const koliko = Math.min(count, 200);
       for (let i = 0; i < koliko; i++) {
         const color = STAR_COLORS[i % STAR_COLORS.length];
         const scale = vrsta === 'velike' ? 'style="transform:scale(1.15)"' : '';
         const zapis = log[i] || {};
         const razlog = zapis.reason || 'Zvjezdica';
         const vrijeme = formatStarTime(zapis.time);
-        html += '<div class="star-item">' +
-                  '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>' +
-                  '<div class="star-reason">' + escapeHtml(razlog) + '</div>' +
-                  (vrijeme ? '<div class="star-time">' + vrijeme + '</div>' : '') +
-                '</div>';
+
+        const item = document.createElement('div');
+        item.className = 'star-item';
+
+        // X gumb za brisanje gore desno
+        const delBtn = document.createElement('button');
+        delBtn.className = 'star-del-btn';
+        delBtn.textContent = '✕';
+        delBtn.title = 'Obriši ovu zvjezdicu';
+        const idx = i;
+        delBtn.addEventListener('click', () => {
+          log.splice(idx, 1);
+          save(); render();
+          openStarView(name, log, vrsta, childRef);
+        });
+        item.appendChild(delBtn);
+
+        const starDiv = document.createElement('div');
+        if (scale) starDiv.setAttribute('style', 'transform:scale(1.15)');
+        starDiv.innerHTML = fancyStarSVG(color, i, vrsta);
+        item.appendChild(starDiv);
+
+        const reasonDiv = document.createElement('div');
+        reasonDiv.className = 'star-reason';
+        reasonDiv.textContent = razlog;
+        item.appendChild(reasonDiv);
+
+        if (vrijeme) {
+          const timeDiv = document.createElement('div');
+          timeDiv.className = 'star-time';
+          timeDiv.textContent = vrijeme;
+          item.appendChild(timeDiv);
+        }
+
+        gallery.appendChild(item);
       }
-      gallery.innerHTML = html;
     }
     modal.style.display = 'flex';
   }
