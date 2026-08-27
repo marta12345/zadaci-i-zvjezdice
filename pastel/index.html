@@ -226,6 +226,28 @@
 
   .empty { text-align: center; color: #b2bec3; padding: 14px; font-style: italic; }
 
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 4px;
+    margin-bottom: 4px;
+    user-select: none;
+  }
+  .toggle-row:hover { opacity: 0.7; }
+  .toggle-arrow {
+    font-size: 0.85rem;
+    color: #95E1D3;
+    transition: transform 0.2s;
+  }
+  .toggle-arrow.open { transform: rotate(0deg); }
+  .toggle-label {
+    font-size: 0.85rem;
+    color: #636e72;
+    font-weight: bold;
+  }
+
   .stars-display.clickable { cursor: pointer; transition: transform 0.1s; }
   .stars-display.clickable:hover { transform: scale(1.25); }
 
@@ -629,9 +651,24 @@
       addRow.appendChild(addBtn);
       card.appendChild(addRow);
 
+      // Strelica za skupljanje/raširivanje liste zadataka
+      const collapsed = localStorage.getItem('collapsed_' + ci) === '1';
+      const toggleRow = document.createElement('div');
+      toggleRow.className = 'toggle-row';
+      toggleRow.innerHTML = '<span class="toggle-arrow' + (collapsed ? '' : ' open') + '">' + (collapsed ? '▶' : '▼') + '</span><span class="toggle-label">' + (collapsed ? 'Prikaži zadatke' : 'Sakrij zadatke') + ' (' + child.tasks.length + ')</span>';
+      toggleRow.addEventListener('click', () => {
+        const isCollapsed = localStorage.getItem('collapsed_' + ci) === '1';
+        localStorage.setItem('collapsed_' + ci, isCollapsed ? '0' : '1');
+        render();
+      });
+      card.appendChild(toggleRow);
+
       // Lista zadataka
       const ul = document.createElement('ul');
       ul.className = 'tasks';
+      if (collapsed) {
+        ul.style.display = 'none';
+      }
       if (child.tasks.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'empty';
