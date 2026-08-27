@@ -853,7 +853,7 @@
 
         const del = document.createElement('button');
         del.className = 'task-del';
-        del.textContent = '🗑';
+        del.textContent = '✕';
         del.title = 'Obriši zaduženje';
         del.addEventListener('click', () => {
           child.tasks.splice(ti, 1);
@@ -1042,9 +1042,11 @@
         delBtn.title = 'Obriši ovu zvjezdicu';
         const idx = i;
         delBtn.addEventListener('click', () => {
-          log.splice(idx, 1);
+          // Direktno brisanje iz children niza po indexu
+          const targetLog = vrsta === 'velike' ? childRef.bigStarLog : childRef.starLog;
+          targetLog.splice(idx, 1);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
-          openStarView(name, log, vrsta, childRef);
+          openStarView(name, targetLog, vrsta, childRef);
         });
         item.appendChild(delBtn);
 
