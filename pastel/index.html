@@ -155,8 +155,34 @@
     border-radius: 12px;
     font-size: 0.95rem;
     font-family: inherit;
+    position: relative;
   }
   .add-task input:focus { outline: none; border-color: var(--accent); }
+  .add-task { position: relative; }
+  .custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 50px;
+    background: #fff;
+    border: 2px solid #dfe6e9;
+    border-radius: 12px;
+    margin-top: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    display: none;
+  }
+  .custom-dropdown.show { display: block; }
+  .custom-dropdown div {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    border-bottom: 1px solid #f1f2f6;
+  }
+  .custom-dropdown div:last-child { border-bottom: none; }
+  .custom-dropdown div:hover { background: #eafaf4; }
   .add-task button {
     border: none;
     background: var(--accent);
@@ -620,18 +646,35 @@
       addRow.className = 'add-task';
       const taskInput = document.createElement('input');
       taskInput.placeholder = 'Novo zaduženje, ostvarenje...';
-      // Automatski prijedlozi teksta tijekom pisanja
-      const listId = 'suggestions-' + ci;
-      taskInput.setAttribute('list', listId);
+      // Custom padajući izbornik koji prikazuje do 10 filtriranih prijedloga
       taskInput.setAttribute('autocomplete', 'off');
-      const datalist = document.createElement('datalist');
-      datalist.id = listId;
-      TASK_SUGGESTIONS.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        datalist.appendChild(opt);
+      const dropdown = document.createElement('div');
+      dropdown.className = 'custom-dropdown';
+
+      function showDropdown() {
+        const val = taskInput.value.trim().toLowerCase();
+        const filtered = TASK_SUGGESTIONS.filter(s => s.toLowerCase().includes(val));
+        const show = filtered.slice(0, 10);
+        if (show.length === 0) { dropdown.classList.remove('show'); return; }
+        dropdown.innerHTML = '';
+        show.forEach(s => {
+          const item = document.createElement('div');
+          item.textContent = s;
+          item.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            taskInput.value = s;
+            dropdown.classList.remove('show');
+            taskInput.focus();
+          });
+          dropdown.appendChild(item);
+        });
+        dropdown.classList.add('show');
+      }
+      taskInput.addEventListener('focus', showDropdown);
+      taskInput.addEventListener('input', showDropdown);
+      taskInput.addEventListener('blur', () => {
+        setTimeout(() => dropdown.classList.remove('show'), 150);
       });
-      addRow.appendChild(datalist);
       const addBtn = document.createElement('button');
       addBtn.textContent = '+';
       addBtn.title = 'Dodaj zaduženje';
@@ -646,6 +689,7 @@
       taskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
       addRow.appendChild(taskInput);
       addRow.appendChild(addBtn);
+      addRow.appendChild(dropdown);
       card.appendChild(addRow);
 
       // Strelica za skupljanje/raširivanje liste zadataka
