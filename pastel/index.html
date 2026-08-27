@@ -647,7 +647,9 @@
         openStarView(child.name, child.starLog, 'mini', child, ci);
       });
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
-        addStar(child, 'Ručno dodano');
+        const razlog = prompt('Za što se dodjeljuje mini zvjezdica?');
+        if (!razlog || !razlog.trim()) return;
+        addStar(child, razlog.trim());
         launchConfetti();
         save(); render();
       });
@@ -671,7 +673,9 @@
         openStarView(child.name, child.bigStarLog, 'velike', child, ci);
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
-        addBigStar(child, 'Petica u školi');
+        const razlog = prompt('Za što se dodjeljuje velika zvjezdica?');
+        if (!razlog || !razlog.trim()) return;
+        addBigStar(child, razlog.trim());
         launchConfetti();
         save(); render();
       });
