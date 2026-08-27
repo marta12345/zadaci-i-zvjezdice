@@ -640,7 +640,7 @@
           <button class="btn-plus" title="Dodaj zvjezdicu (3 = 1 velika)">+</button>
         </span>`;
       starsRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.starLog, 'mini', child);
+        openStarView(child.name, child.starLog, 'mini', child, ci);
       });
       starsRow.querySelector('.btn-plus').addEventListener('click', () => {
         addStar(child, 'Ručno dodano');
@@ -664,7 +664,7 @@
           <button class="btn-plus big-plus" title="Velika zvijezda za peticu iz testa">+</button>
         </span>`;
       bigRow.querySelector('.stars-display').addEventListener('click', () => {
-        openStarView(child.name, child.bigStarLog, 'velike', child);
+        openStarView(child.name, child.bigStarLog, 'velike', child, ci);
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
         addBigStar(child, 'Petica u školi');
@@ -1008,11 +1008,18 @@
            p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  // Pamti zadnji otvoreni pregled za refresh nakon brisanja
-  let lastStarView = null;
+  // Globalna funkcija za brisanje zvjezdice (poziva se iz inline onclick)
+  window.deleteStar = function(childIdx, vrsta, starIdx) {
+    const child = children[childIdx];
+    const log = vrsta === 'velike' ? child.bigStarLog : child.starLog;
+    log.splice(starIdx, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
+    // Osvježi pregled
+    openStarView(child.name, log, vrsta, child, childIdx);
+  };
 
-  function openStarView(name, log, vrsta, childRef) {
-    lastStarView = { name, log, vrsta, childRef };
+  function openStarView(name, log, vrsta, childRef, childIdx) {
+    lastStarView = { name, log, vrsta, childRef, childIdx };
     const modal = document.getElementById('starModal');
     const title = document.getElementById('modalTitle');
     const gallery = document.getElementById('starGallery');
@@ -1023,7 +1030,7 @@
     if (count <= 0) {
       gallery.innerHTML = '<div class="star-empty-msg">Još nema skupljenih zvjezdica. Riješi zadatke! 💪</div>';
     } else {
-      gallery.innerHTML = '';
+      let html = '';
       const koliko = Math.min(count, 200);
       for (let i = 0; i < koliko; i++) {
         const color = STAR_COLORS[i % STAR_COLORS.length];
@@ -1032,43 +1039,14 @@
         const razlog = zapis.reason || 'Zvjezdica';
         const vrijeme = formatStarTime(zapis.time);
 
-        const item = document.createElement('div');
-        item.className = 'star-item';
-
-        // X gumb za brisanje gore desno
-        const delBtn = document.createElement('button');
-        delBtn.className = 'star-del-btn';
-        delBtn.textContent = '✕';
-        delBtn.title = 'Obriši ovu zvjezdicu';
-        const idx = i;
-        delBtn.addEventListener('click', () => {
-          // Direktno brisanje iz children niza po indexu
-          const targetLog = vrsta === 'velike' ? childRef.bigStarLog : childRef.starLog;
-          targetLog.splice(idx, 1);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(children));
-          openStarView(name, targetLog, vrsta, childRef);
-        });
-        item.appendChild(delBtn);
-
-        const starDiv = document.createElement('div');
-        if (scale) starDiv.setAttribute('style', 'transform:scale(1.15)');
-        starDiv.innerHTML = fancyStarSVG(color, i, vrsta);
-        item.appendChild(starDiv);
-
-        const reasonDiv = document.createElement('div');
-        reasonDiv.className = 'star-reason';
-        reasonDiv.textContent = razlog;
-        item.appendChild(reasonDiv);
-
-        if (vrijeme) {
-          const timeDiv = document.createElement('div');
-          timeDiv.className = 'star-time';
-          timeDiv.textContent = vrijeme;
-          item.appendChild(timeDiv);
-        }
-
-        gallery.appendChild(item);
+        html += '<div class="star-item">' +
+          '<button class="star-del-btn" onclick="deleteStar(' + childIdx + ',\'' + vrsta + '\',' + i + ')" title="Obriši">✕</button>' +
+          '<div ' + scale + '>' + fancyStarSVG(color, i, vrsta) + '</div>' +
+          '<div class="star-reason">' + escapeHtml(razlog) + '</div>' +
+          (vrijeme ? '<div class="star-time">' + vrijeme + '</div>' : '') +
+          '</div>';
       }
+      gallery.innerHTML = html;
     }
     modal.style.display = 'flex';
   }
