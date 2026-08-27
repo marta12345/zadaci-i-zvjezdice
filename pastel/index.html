@@ -409,8 +409,14 @@
     'Napisati zadaću PET',
     'Judo trening UTO',
     'Judo trening ČET',
-    'Petica iz testa',
-    'Naučiti za test',
+    'Petica u školi HRV',
+    'Petica u školi MAT',
+    'Petica u školi PiD',
+    'Petica u školi VJER',
+    'Petica u školi GLAZ',
+    'Petica u školi INFO',
+    'Petica u školi LIK',
+    'Petica u školi TJEL',
     'Pospremiti sobu',
     'Pospremiti igračke',
     'Čitati 15 minuta',
@@ -599,7 +605,7 @@
         openStarView(child.name, child.bigStarLog, 'velike');
       });
       bigRow.querySelector('.big-plus').addEventListener('click', () => {
-        addBigStar(child, 'Petica iz testa');
+        addBigStar(child, 'Petica u školi');
         launchConfetti();
         save(); render();
       });
@@ -676,8 +682,8 @@
         check.checked = task.done;
         check.addEventListener('change', () => {
           task.done = check.checked;
-          // Zadatak "Petica iz testa" nosi VELIKU zvijezdu, ostali obicnu.
-          const jePetica = task.text.trim().toLowerCase() === 'petica iz testa';
+          // Zadatak "Petica u školi ..." nosi VELIKU zvijezdu, ostali obicnu.
+          const jePetica = task.text.trim().toLowerCase().startsWith('petica u školi');
           if (task.done) {
             if (jePetica) addBigStar(child, task.text);
             else addStar(child, task.text);
@@ -705,7 +711,7 @@
           } else if (lc.includes('napisati zadaću') || lc.includes('napiši zadaću')) {
             span.style.color = '#8e44ad';      // ljubičasta
             span.style.fontWeight = 'bold';
-          } else if (lc.includes('petica iz testa')) {
+          } else if (lc.includes('petica u školi')) {
             span.style.color = '#8b5a2b';      // smeđa
             span.style.fontWeight = 'bold';
           }
