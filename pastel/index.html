@@ -192,6 +192,17 @@
     font-size: 1.2rem;
     cursor: pointer;
   }
+  .btn-star-direct {
+    border: none;
+    background: #F6C744;
+    color: #fff;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 4px;
+  }
+  .btn-star-direct:hover { background: #e8b93a; }
 
   ul.tasks { list-style: none; flex: 1; }
   ul.tasks li {
@@ -689,6 +700,24 @@
       taskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
       addRow.appendChild(taskInput);
       addRow.appendChild(addBtn);
+
+      // Gumb za direktno dodavanje u zvjezdice (strelica gore)
+      const starBtn = document.createElement('button');
+      starBtn.className = 'btn-star-direct';
+      starBtn.innerHTML = '⬆';
+      starBtn.title = 'Dodaj odmah kao zvjezdicu';
+      starBtn.addEventListener('click', () => {
+        const text = taskInput.value.trim();
+        if (!text) return;
+        const jePetica = text.toLowerCase().startsWith('petica u školi');
+        if (jePetica) addBigStar(child, text);
+        else addStar(child, text);
+        launchConfetti();
+        taskInput.value = '';
+        save(); render();
+      });
+      addRow.appendChild(starBtn);
+
       addRow.appendChild(dropdown);
       card.appendChild(addRow);
 
